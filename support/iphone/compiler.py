@@ -224,7 +224,16 @@ class Compiler(object):
 		# we have to copy these even in simulator given the path difference
 		if os.path.exists(app_dir):
 			self.copy_resources([iphone_resources_dir],app_dir,False)
-
+			#And now, dealing with the new and improved format.
+			ios_resources_dir = os.path.join(resources_dir,'platform','ios')
+			self.copy_resources([ios_resources_dir],app_dir,False)
+			if self.platform == 'iphone':
+				device_resources_dir = os.path.join(resources_dir,'platform','ios','iphone')
+				self.copy_resources([device_resources_dir],app_dir,False)
+			if self.platform == 'ipad':
+				device_resources_dir = os.path.join(resources_dir,'platform','ios','ipad')
+				self.copy_resources([device_resources_dir],app_dir,False)
+		
 		# generate the includes for all compiled modules
 		xcconfig_c = "// this is a generated file - DO NOT EDIT\n\n"
 		has_modules = False
