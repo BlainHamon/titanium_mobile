@@ -16,7 +16,7 @@ from csspacker import CSSPacker
 from module import ModuleDetector
 
 ignoreFiles = ['.gitignore', '.cvsignore', '.DS_Store'];
-ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone'];
+ignoreDirs = ['.git','.svn','_svn','CVS','android','iphone','ios','ipad','platforms'];
 
 HEADER = """/**
  * Appcelerator Titanium Mobile
@@ -155,6 +155,7 @@ class Compiler(object):
 		self.classes_dir = os.path.join(self.iphone_dir,'Classes')
 		self.modules = []
 		self.modules_metadata = []
+		self.devicefamily = devicefamily
 		
 		# for now, these are required
 		self.defines = ['USE_TI_ANALYTICS','USE_TI_NETWORK','USE_TI_PLATFORM','USE_TI_UI', 'USE_TI_API']
@@ -227,10 +228,10 @@ class Compiler(object):
 			#And now, dealing with the new and improved format.
 			ios_resources_dir = os.path.join(resources_dir,'platform','ios')
 			self.copy_resources([ios_resources_dir],app_dir,False)
-			if self.platform == 'iphone':
+			if (self.devicefamily == 'universal') or (self.devicefamily == 'iphone'):
 				device_resources_dir = os.path.join(resources_dir,'platform','ios','iphone')
 				self.copy_resources([device_resources_dir],app_dir,False)
-			if self.platform == 'ipad':
+			if (self.devicefamily == 'universal') or (self.devicefamily == 'ipad'):
 				device_resources_dir = os.path.join(resources_dir,'platform','ios','ipad')
 				self.copy_resources([device_resources_dir],app_dir,False)
 		
