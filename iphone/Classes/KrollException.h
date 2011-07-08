@@ -25,3 +25,11 @@ inline BOOL KrollExceptionHasNoErrors(KrollException * exception) {return !Kroll
 //These convert such that if a TiValue is contained an an NSError is requested, it is converted.
 NSError * KrollExceptionGetNSError(KrollException * exception);
 TiValueRef KrollExceptionGetTiValue(KrollException * exception);
+inline void KrollExceptionSetNSError(KrollException * exception, NSError * error)
+		{if(exception){exception->errorObject = error;}}
+inline void KrollExceptionSetTiValue(KrollException * exception, TiValueRef value)
+		{if(exception){exception->errorValue = value;}}
+inline void KrollExceptionSetMissingArgument(KrollException * exception, BOOL missing)
+		{if(exception){exception->missingArgument = missing;}}
+
+
