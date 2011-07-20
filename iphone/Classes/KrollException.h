@@ -9,27 +9,68 @@
 #import <Foundation/Foundation.h>
 #import "Ti.h"
 
+enum {
+	KrollExceptionThrown			= 1 << 0,
+	KrollExceptionMissingArgument	= 1 << 1,
+	KrollExceptionWrongType			= 1 << 2,
+	KrollExceptionValueTooLow		= 1 << 3,
+	KrollExceptionValueTooHigh		= 1 << 4,
+	KrollExceptionValueOutOfRange	= KrollExceptionValueTooLow | KrollExceptionValueTooHigh,
+};
+
 typedef struct {
+	UInt32	flags;
 	NSError * errorObject;
 	TiValueRef errorValue;
-	BOOL missingArgument;
+	void *	reserved2;
+
+	void *	reserved3;
+	void *	reserved4;
+	void *	reserved5;
+	void *	reserved6;
 } KrollException;
+
+/* KrollException is a general purpose wrapper for the various exceptions that
+ * various APIs present. By having this wrapper, it's meant to reduce the cost
+ * of handling thrown exceptions with try/catch, especially when some exceptions
+ * are safely ignored. It's also meant to help reduce dependance on one specific
+ * underlying API or another.
+ *
+ * KrollException is meant to be something that's tripped and reset. 
+ */
+
+
+
+
 
 extern const KrollException kKrollExceptionNoErrors;
 
-inline BOOL KrollExceptionWasThrown(KrollException * exception) { return (exception->errorValue != NULL) || (exception->errorObject != nil); }
-inline BOOL KrollExceptionMissingArgument(KrollException * exception) {return exception->missingArgument;}
+inline BOOL KrollExceptionWasThrown(KrollException * exception)
+		{return (exception->flags & KrollExceptionThrown) != 0;}
 
-inline BOOL KrollExceptionHasNoErrors(KrollException * exception) {return !KrollExceptionMissingArgument(exception) && !KrollExceptionWasThrown(exception);}
+inline BOOL KrollExceptionHasMissingArgument(KrollException * exception)
+		{return (exception->flags & KrollExceptionMissingArgument) != 0;}
+
+inline BOOL KrollExceptionHasException(KrollException * exception, UInt32 exceptionFlag)
+		{return (exception->flags & exceptionFlag) != 0;}
+
+inline BOOL KrollExceptionHasNoErrors(KrollException * exception)
+		{return (exception->flags==0);}
+
 
 //These convert such that if a TiValue is contained an an NSError is requested, it is converted.
 NSError * KrollExceptionGetNSError(KrollException * exception);
 TiValueRef KrollExceptionGetTiValue(KrollException * exception);
+
 inline void KrollExceptionSetNSError(KrollException * exception, NSError * error)
-		{if(exception){exception->errorObject = error;}}
+		{if((exception != NULL) && (error != NULL))
+			{exception->errorObject = error; exception->flags |= KrollExceptionThrown;}}
+
 inline void KrollExceptionSetTiValue(KrollException * exception, TiValueRef value)
-		{if(exception){exception->errorValue = value;}}
-inline void KrollExceptionSetMissingArgument(KrollException * exception, BOOL missing)
-		{if(exception){exception->missingArgument = missing;}}
+		{if((exception != NULL) && (value != NULL))
+			{exception->errorValue = value; exception->flags |= KrollExceptionThrown;}}
+
+inline void KrollExceptionSetException(KrollException * exception, UInt32 exceptionFlag)
+		{if(exception != NULL){exception->flags |= exceptionFlag;}}
 
 

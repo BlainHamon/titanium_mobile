@@ -8,6 +8,7 @@
 
 #import "KrollException.h"
 
+const KrollException kKrollExceptionNoErrors = {0,NULL,NULL,NULL, NULL,NULL,NULL,NULL};
 
 NSError * KrollExceptionGetNSError(KrollException * exception)
 {
