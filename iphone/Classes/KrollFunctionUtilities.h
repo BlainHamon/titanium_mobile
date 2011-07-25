@@ -32,4 +32,17 @@ TiObjectRef KrollArgumentsGetTiObjectAtIndex(void *args, int index, KrollExcepti
 //To put in TiDimension's header file
 TiDimension KrollArgumentsGetDimensionAtIndex(void * args, int index, KrollException * error);
 TiDimension TiValueToTiDimension(TiContextRef * jsContext, TiValueRef value);
-//TiValueRef TiValue
+TiValueRef TiValueFromTiDimension(TiContextRef * jsContext, TiDimension value);
+
+
+#define DEFINE_PUBLIC_FUNCTION(functName)	\
+	-(void *) krollFunction_##functName : (id) args;
+
+#define DEFINE_PUBLIC_SETTER(functName)	\
+	-(void *) krollSetter_##functName : (id) args;
+
+#define DEFINE_PUBLIC_GETTER(functName)	\
+	-(void *) krollGetter_##functName : (id) args;
+
+#define ARGUMENT_COUNT	KrollArgumentsGetCount(args,NULL)
+#define ARGUMENT_INT_AT_INDEX(index)	KrollArgumentsGetIntAtIndex(args,index,NULL);
