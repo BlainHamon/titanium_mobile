@@ -54,9 +54,6 @@ typedef struct {
  */
 
 
-
-
-
 extern const KrollException kKrollExceptionNoErrors;
 
 inline BOOL KrollExceptionWasThrown(KrollException * exception)
@@ -86,6 +83,8 @@ inline void KrollExceptionSetTiValue(KrollException * exception, TiValueRef valu
 
 inline void KrollExceptionSetException(KrollException * exception, UInt32 exceptionFlag)
 		{if(exception != NULL){exception->flags |= exceptionFlag;}}
+
+
 
 #endif /* KrollException_h */
 
