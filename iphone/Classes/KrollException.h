@@ -6,8 +6,22 @@
 //  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
+
+#ifndef KrollException_h
+#define KrollException_h
+
+#if TARGET_OS_IPHONE
+
 #import <Foundation/Foundation.h>
-#import "Ti.h"
+#include "Ti.h"
+
+#else
+
+#define NSError void
+typedef void * TiValueRef;
+
+#endif
+
 
 enum {
 	KrollExceptionThrown			= 1 << 0,
@@ -73,4 +87,5 @@ inline void KrollExceptionSetTiValue(KrollException * exception, TiValueRef valu
 inline void KrollExceptionSetException(KrollException * exception, UInt32 exceptionFlag)
 		{if(exception != NULL){exception->flags |= exceptionFlag;}}
 
+#endif /* KrollException_h */
 

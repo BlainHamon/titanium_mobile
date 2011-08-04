@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+#import <Foundation/Foundation.h>
 #include "KrollFunctionUtilities.h"
 #include "KrollFunctionInvocation.h"
 
