@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1D5034BD13BCE9FF0053876B /* KrollFunctionArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5034BC13BCE9FF0053876B /* KrollFunctionArguments.m */; };
-		1D5034BE13BCE9FF0053876B /* KrollFunctionArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5034BC13BCE9FF0053876B /* KrollFunctionArguments.m */; };
-		1D5034BF13BCE9FF0053876B /* KrollFunctionArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5034BC13BCE9FF0053876B /* KrollFunctionArguments.m */; };
+		1D5034BD13BCE9FF0053876B /* KrollFunctionInvocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */; };
+		1D5034BE13BCE9FF0053876B /* KrollFunctionInvocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */; };
+		1D5034BF13BCE9FF0053876B /* KrollFunctionInvocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */; };
 		1D5B5FD113BD548C00665CFC /* KrollFunctionUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */; };
 		1D5B5FD213BD548C00665CFC /* KrollFunctionUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */; };
 		1D5B5FD313BD548C00665CFC /* KrollFunctionUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */; };
@@ -885,8 +885,8 @@
 
 /* Begin PBXFileReference section */
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		1D5034BB13BCE9FF0053876B /* KrollFunctionArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollFunctionArguments.h; sourceTree = "<group>"; };
-		1D5034BC13BCE9FF0053876B /* KrollFunctionArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollFunctionArguments.m; sourceTree = "<group>"; };
+		1D5034BB13BCE9FF0053876B /* KrollFunctionInvocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollFunctionInvocation.h; sourceTree = "<group>"; };
+		1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollFunctionInvocation.m; sourceTree = "<group>"; };
 		1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollFunctionUtilities.m; sourceTree = "<group>"; };
 		1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollFunctionUtilities.h; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1937,8 +1937,8 @@
 				B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */,
 				1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */,
 				1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */,
-				1D5034BB13BCE9FF0053876B /* KrollFunctionArguments.h */,
-				1D5034BC13BCE9FF0053876B /* KrollFunctionArguments.m */,
+				1D5034BB13BCE9FF0053876B /* KrollFunctionInvocation.h */,
+				1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */,
 				1DC04CEF13BEE71700A0760F /* KrollException.h */,
 				1DC04CF013BEE71800A0760F /* KrollException.m */,
 			);
@@ -3342,7 +3342,7 @@
 				DA2556441353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				DAE541E313577BEC00A65123 /* TiDataStream.m in Sources */,
 				4D3033A3136239B30034640F /* TiFilesystemFileStreamProxy.m in Sources */,
-				1D5034BD13BCE9FF0053876B /* KrollFunctionArguments.m in Sources */,
+				1D5034BD13BCE9FF0053876B /* KrollFunctionInvocation.m in Sources */,
 				1D5B5FD113BD548C00665CFC /* KrollFunctionUtilities.m in Sources */,
 				1DC04CF113BEE71800A0760F /* KrollException.m in Sources */,
 			);
@@ -3613,7 +3613,7 @@
 				DA2556451353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				DAE541E413577BEC00A65123 /* TiDataStream.m in Sources */,
 				B415067A136745E20084074A /* TiFilesystemFileStreamProxy.m in Sources */,
-				1D5034BE13BCE9FF0053876B /* KrollFunctionArguments.m in Sources */,
+				1D5034BE13BCE9FF0053876B /* KrollFunctionInvocation.m in Sources */,
 				1D5B5FD213BD548C00665CFC /* KrollFunctionUtilities.m in Sources */,
 				1DC04CF213BEE71800A0760F /* KrollException.m in Sources */,
 			);
@@ -3884,7 +3884,7 @@
 				DA2556461353D2FC005D459C /* TiNetworkSocketProxy.m in Sources */,
 				DAE541E513577BEC00A65123 /* TiDataStream.m in Sources */,
 				B415067D136745FE0084074A /* TiFilesystemFileStreamProxy.m in Sources */,
-				1D5034BF13BCE9FF0053876B /* KrollFunctionArguments.m in Sources */,
+				1D5034BF13BCE9FF0053876B /* KrollFunctionInvocation.m in Sources */,
 				1D5B5FD313BD548C00665CFC /* KrollFunctionUtilities.m in Sources */,
 				1DC04CF313BEE71800A0760F /* KrollException.m in Sources */,
 			);

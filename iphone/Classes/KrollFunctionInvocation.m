@@ -6,11 +6,11 @@
  */
 #import "Ti.h"
 
-#import "KrollFunctionArguments.h"
+#import "KrollFunctionInvocation.h"
 #import "KrollObject.h"
 #import "KrollContext.h"
 
-@implementation KrollFunctionArguments
+@implementation KrollFunctionInvocation
 
 -(id)initWithValueRefs:(TiValueRef[])argumentValueRefs count:(int)argumentCount jsContext:(TiContextRef)argumentContext
 {

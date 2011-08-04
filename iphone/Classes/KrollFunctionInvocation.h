@@ -14,24 +14,30 @@ typedef const struct OpaqueTiContext* TiContextRef;
 
 //Sadly, we DO have to include TiCore, just for TiContextRef and TiValueRef.
 
-/*	KrollFunctionArguments should never be retained, but only used in passing.
+/*	KrollFunctionInvocation should never be retained, but only used in passing.
  *	This is because the internal jsContext and value refs are fleeting, and
  *	are only garunteed to be valid pointers during the duration of the function
  *	call.
  *
  *	If you want to artifically call a JS-facing method (namely, ones with the
- *	kroll_, krollSetter_, or krollGetter_ prefixes), the initialization methods
- *	are exposed for you. HOWEVER, the KrollFunctionArguments object MUST be
- *	disposed of after your method call.
+ *	krollFunction_, krollSetter_, or krollGetter_ prefixes), the initialization
+ *	methods are exposed for you. HOWEVER, the KrollFunctionInvocation object
+ *	MUST be disposed of after your method call.
  *
- *	KrollFunctionArguments and its methods are meant to be immutable (read-only)
+ *	KrollFunctionInvocation and its methods are meant to be immutable (read-only)
  *	and may be a copy in some cases (IE, when converting a valueRef to id and
  *	vice versa.
+ *
+ *	KrollFunctionInvocation was originally called KrollFunctionArguments as it's
+ *	passed on as the argument to the Kroll*_ functions, but because it stores
+ *	the state needed to generate a return value (IE, jsContext), it should
+ *	connote the entire function invocation, and store such.
  */
 @class KrollContext;
 
-@interface KrollFunctionArguments : NSObject
+@interface KrollFunctionInvocation : NSObject
 {
+	TiValueRef * thisJsObject;
 	TiValueRef * valueRefs;
 	TiContextRef jsContext;
 	int count;

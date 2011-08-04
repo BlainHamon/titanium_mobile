@@ -6,7 +6,7 @@
  */
 
 #include "KrollFunctionUtilities.h"
-#include "KrollFunctionArguments.h"
+#include "KrollFunctionInvocation.h"
 
 int					KrollArgumentsGetCount(void * args, KrollException * error)
 {
@@ -31,7 +31,7 @@ KrollArgumentType	KrollArgumentsTypeAtIndex(void * args, int index)
 		return KrollArgumentNSObject;
 	}
 	
-	if([object isKindOfClass:[KrollFunctionArguments class]])
+	if([object isKindOfClass:[KrollFunctionInvocation class]])
 	{
 		return KrollArgumentTiValue;
 	}
@@ -52,7 +52,7 @@ int			KrollArgumentsGetIntAtIndex(void * args, int index, KrollException * error
 float		KrollArgumentsGetFloatAtIndex(void * args, int index, KrollException * error);
 double		KrollArgumentsGetDoubleAtIndex(void * args, int index, KrollException * error);
 
-TiObjectRef KrollArgumentsGetTiObjectAtIndex(void *args, int index, KrollException * error);
+TiValueRef KrollArgumentsGetTiValueAtIndex(void *args, int index, KrollException * error);
 
 //To put in TiDimension's header file
 TiDimension KrollArgumentsGetDimensionAtIndex(void * args, int index, KrollException * error);
