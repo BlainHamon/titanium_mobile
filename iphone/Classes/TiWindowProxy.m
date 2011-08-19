@@ -56,6 +56,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
+@synthesize opening;
 
 - (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
 {
@@ -118,6 +119,7 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 
 -(void)_configure
 {	
+    orientationFlags = [[[TiApp app] controller] allowedOrientations];
 	[self replaceValue:nil forKey:@"orientationModes" notification:NO];
 	[super _configure];
 }
@@ -394,7 +396,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		opening = YES;
 	}
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:NO];
+	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -720,15 +722,65 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 	focused = newFocused;
 }
 
-#pragma mark Animation Delegates
-
-- (void)viewDidAppear:(BOOL)animated;    // Called when the view is about to made visible. Default does nothing
+-(BOOL)allowsOrientation:(UIInterfaceOrientation)orientation
 {
-	[[self parentOrientationController]
-			childOrientationControllerChangedFlags:self];
+    return TI_ORIENTATION_ALLOWED(orientationFlags, orientation);
+}
+
+-(void)ignoringRotationToOrientation:(UIInterfaceOrientation)orientation
+{
+    // For subclasses
 }
 
 
+#pragma mark TIUIViewController methods
+/*
+ *	Over time, we should move focus and blurs to be triggered by standard
+ *	Cocoa conventions instead of second-guessing iOS. This will be a slow
+ *	transition, and in the meantime, verbose debug statements of focus being
+ *	already set/cleared should not be a need for panic.
+ */
+
+- (void)viewDidAppear:(BOOL)animated
+{
+	[[self parentOrientationController]
+			childOrientationControllerChangedFlags:self];
+
+	if (!focused)
+	{
+		[self fireFocus:YES];
+	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[DEBUG] Focused was already set while in viewDidAppear.");
+	}
+#endif	
+}
+
+-(void)viewWillDisappear:(BOOL)animated
+{
+	if (focused)
+	{
+		[self fireFocus:NO];
+	}
+#ifdef VERBOSE
+	else
+	{
+		NSLog(@"[DEBUG] Focused was already cleared while in viewWillDisappear.");
+	}
+#endif
+}
+
+-(void)viewWillAppear:(BOOL)animated
+{
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+}
+
+#pragma mark Animation Delegates
 
 -(BOOL)animationShouldTransition:(id)sender
 {

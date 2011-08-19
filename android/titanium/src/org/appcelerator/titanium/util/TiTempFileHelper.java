@@ -8,6 +8,8 @@ package org.appcelerator.titanium.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.channels.FileLockInterruptionException;
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -33,6 +35,7 @@ public class TiTempFileHelper
 	public static final int DEFAULT_CLEAN_TIMEOUT = 5; // The number of seconds the async cleanup method uses for scheduling
 
 	protected File tempDir;
+	protected ArrayList<String> createdThisSession = new ArrayList<String>();
 
 	public TiTempFileHelper(TiApplication app)
 	{
@@ -42,11 +45,23 @@ public class TiTempFileHelper
 		File dataDir = new File(new File(extStorage, "Android"), "data");
 		File externalCacheDir = new File(new File(dataDir, app.getPackageName()), "cache");
 		tempDir = new File(externalCacheDir, TEMPDIR);
+
+		// go ahead and make sure the temp directory exists
+		String extState = Environment.getExternalStorageState();
+		if (Environment.MEDIA_MOUNTED.equals(extState)) {
+			if (!tempDir.exists()) {
+				tempDir.mkdirs();
+			}
+		} else {
+			// TODO this needs further discussion regarding what to do with temp files 
+			// when SD card is removed
+			Log.e(TAG, "External storage not mounted for writing");
+		}
 	}
 
 	/**
 	 * Create a temporary file inside the external cache directory
-	 * @see {@link java.io.File#createTempFile(String, String)}
+	 * @see File#createTempFile(String, String)
 	 * @throws IOException when the external storage state is either unmounted or read only 
 	 */
 	public File createTempFile(String prefix, String suffix)
@@ -54,10 +69,11 @@ public class TiTempFileHelper
 	{
 		String extState = Environment.getExternalStorageState();
 		if (Environment.MEDIA_MOUNTED.equals(extState)) {
-			if (!tempDir.exists()) {
-				tempDir.mkdirs();
+			File tempFile = File.createTempFile(prefix, suffix, tempDir);
+			synchronized (createdThisSession) {
+				createdThisSession.add(tempFile.getAbsolutePath());
 			}
-			return File.createTempFile(prefix, suffix, tempDir);
+			return tempFile;
 		} else {
 			throw new IOException("External storage not mounted for writing");
 		}
@@ -137,14 +153,26 @@ public class TiTempFileHelper
 		}
 		for (File file : tempDir.listFiles())
 		{
+			String absolutePath = file.getAbsolutePath();
+			synchronized (createdThisSession) {
+				if (createdThisSession.contains(absolutePath)) {
+					continue;
+				}
+			}
+
 			if (DBG) {
-				Log.d(TAG, "Deleting temporary file " + file.getAbsolutePath());
+				Log.d(TAG, "Deleting temporary file " + absolutePath);
 			}
 			try {
 				file.delete();
 			} catch (Exception e) {
-				Log.w(TAG, "Exception trying to delete " + file.getAbsolutePath() + ", skipping", e);
+				Log.w(TAG, "Exception trying to delete " + absolutePath + ", skipping", e);
 			}
 		}
+	}
+
+	public File getTempDirectory()
+	{
+		return tempDir;
 	}
 }
