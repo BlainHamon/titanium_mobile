@@ -18,6 +18,9 @@
 		1DC04CF113BEE71800A0760F /* KrollException.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DC04CF013BEE71800A0760F /* KrollException.m */; };
 		1DC04CF213BEE71800A0760F /* KrollException.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DC04CF013BEE71800A0760F /* KrollException.m */; };
 		1DC04CF313BEE71800A0760F /* KrollException.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DC04CF013BEE71800A0760F /* KrollException.m */; };
+		1DCC53EE13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC53ED13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m */; };
+		1DCC53EF13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC53ED13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m */; };
+		1DCC53F013FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DCC53ED13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m */; };
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		2412F467115C296300454E5B /* TiMediaVideoPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 2412F465115C296300454E5B /* TiMediaVideoPlayer.m */; };
 		242E8E3111BA39FD0046A0D0 /* libTiCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 242E8E3011BA39FD0046A0D0 /* libTiCore.a */; };
@@ -907,6 +910,8 @@
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1DC04CEF13BEE71700A0760F /* KrollException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollException.h; sourceTree = "<group>"; };
 		1DC04CF013BEE71800A0760F /* KrollException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollException.m; sourceTree = "<group>"; };
+		1DCC53EC13FEE38E00DF3EE5 /* KeyboardAccessoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardAccessoryManager.h; sourceTree = "<group>"; };
+		1DCC53ED13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyboardAccessoryManager.m; sourceTree = "<group>"; };
 		1DF5F4DF0D08C38300B7A737 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		2412F464115C296300454E5B /* TiMediaVideoPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiMediaVideoPlayer.h; sourceTree = "<group>"; };
 		2412F465115C296300454E5B /* TiMediaVideoPlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiMediaVideoPlayer.m; sourceTree = "<group>"; };
@@ -2015,6 +2020,8 @@
 				DABF3EDB134D2E4300836137 /* TiStreamProxy.m */,
 				DAE541E113577BEC00A65123 /* TiDataStream.h */,
 				DAE541E213577BEC00A65123 /* TiDataStream.m */,
+				1DCC53EC13FEE38E00DF3EE5 /* KeyboardAccessoryManager.h */,
+				1DCC53ED13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m */,
 			);
 			name = API;
 			sourceTree = "<group>";
@@ -3368,6 +3375,7 @@
 				EF03EFF613E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				1DCC53EE13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3643,6 +3651,7 @@
 				EF03EFF713E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				1DCC53EF13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3918,6 +3927,7 @@
 				EF03EFF813E3665100BD4FF7 /* ASIDataDecompressor.m in Sources */,
 				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
+				1DCC53F013FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

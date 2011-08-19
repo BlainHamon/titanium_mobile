@@ -30,20 +30,6 @@
 	NSMutableArray * windowProxies;
 
 //Keyboard handling -- This can probably be done in a better way.
-	BOOL updatingAccessoryView;
-	UIView * enteringAccessoryView;	//View that will enter.
-	UIView * accessoryView;			//View that is onscreen.
-	UIView * leavingAccessoryView;	//View that is leaving the screen.
-	TiViewProxy<TiKeyboardFocusableView> * keyboardFocusedProxy; //View whose becoming key affects things.
-	
-	CGRect startFrame;		//Where the keyboard was before the handling
-	CGRect targetedFrame;	//The keyboard place relative to where the accessoryView is moving;
-	CGRect endFrame;		//Where the keyboard will be after the handling
-	BOOL keyboardVisible;	//If false, use enterCurve. If true, use leaveCurve.
-	UIViewAnimationCurve enterCurve;
-	CGFloat enterDuration;
-	UIViewAnimationCurve leaveCurve;
-	CGFloat leaveDuration;
 }
 
 @property(nonatomic,readwrite,retain)	UIColor * backgroundColor;
