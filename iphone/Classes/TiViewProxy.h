@@ -34,7 +34,7 @@ enum
 	TiRefreshViewEnqueued,
 };
 
-@class TiAction, TiBlob;
+@class TiBlob;
 //For TableRows, we need to have minimumParentHeightForWidth:
 @interface TiViewProxy : TiProxy<LayoutAutosizing> 
 {
@@ -156,9 +156,10 @@ enum
 -(void)viewDidDetach;
 
 #pragma mark Housecleaning state accessors
+@property(nonatomic,readonly)	BOOL viewInitialized;
+
 //TODO: Sounds like the redundancy department of redundancy was here.
 -(BOOL)viewAttached;
--(BOOL)viewInitialized;
 -(BOOL)viewReady;
 -(BOOL)windowHasOpened;
 -(BOOL)windowIsOpening;
@@ -181,7 +182,6 @@ enum
 -(void)addImageToBlob:(NSArray*)args;
 
 -(void)animationCompleted:(TiAnimation*)animation;
--(void)makeViewPerformAction:(TiAction *)action;
 
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait;
 

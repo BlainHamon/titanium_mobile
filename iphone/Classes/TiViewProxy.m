@@ -11,7 +11,6 @@
 #import "TiBlob.h"
 #import "TiRect.h"
 #import "TiLayoutQueue.h"
-#import "TiAction.h"
 #import "TiStylesheet.h"
 #import "TiLocale.h"
 
@@ -26,7 +25,7 @@
 
 #pragma mark public API
 
-@synthesize zIndex, parentVisible;
+@synthesize zIndex, parentVisible, viewInitialized;
 -(void)setZIndex:(int)newZindex
 {
 	if(newZindex == zIndex)
@@ -316,31 +315,30 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	[self performSelectorOnMainThread:@selector(addImageToBlob:) withObject:[NSArray arrayWithObjects:blob,callback,nil] waitUntilDone:callback==nil ? YES : NO];
 	return blob;
 }
-
 -(TiPoint*)convertPointToView:(id)args
 {
-    id arg1 = nil;
-    TiViewProxy* arg2 = nil;
-    ENSURE_ARG_AT_INDEX(arg1, args, 0, NSObject);
-    ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
-    BOOL validPoint;
-    CGPoint oldPoint = [TiUtils pointValue:arg1 valid:&validPoint];
-    if (!validPoint) {
-        [self throwException:TiExceptionInvalidType subreason:@"Parameter is not convertable to a TiPoint" location:CODELOCATION];
-    }
-    
-    __block BOOL validView = NO;
-    __block CGPoint p;
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
-            validView = YES;
-            p = [self.view convertPoint:oldPoint toView:arg2.view];
-        }
-    });
-    if (!validView) {
-        return (TiPoint*)[NSNull null];
-    }
-    return [[[TiPoint alloc] initWithPoint:p] autorelease];
+	id arg1 = nil;
+	TiViewProxy* arg2 = nil;
+	ENSURE_ARG_AT_INDEX(arg1, args, 0, NSObject);
+	ENSURE_ARG_AT_INDEX(arg2, args, 1, TiViewProxy);
+	BOOL validPoint;
+	CGPoint oldPoint = [TiUtils pointValue:arg1 valid:&validPoint];
+	if (!validPoint) {
+		[self throwException:TiExceptionInvalidType subreason:@"Parameter is not convertable to a TiPoint" location:CODELOCATION];
+	}
+
+	__block BOOL validView = NO;
+	__block CGPoint p;
+	dispatch_sync(dispatch_get_main_queue(), ^{
+		if ([self viewAttached] && self.view.window && [arg2 viewAttached] && arg2.view.window) {
+			validView = YES;
+			p = [self.view convertPoint:oldPoint toView:arg2.view];
+		}
+	});
+	if (!validView) {
+		return (TiPoint*)[NSNull null];
+	}
+	return [[[TiPoint alloc] initWithPoint:p] autorelease];
 }
 
 #pragma mark nonpublic accessors not related to Housecleaning
@@ -600,7 +598,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 			[self setSandboxBounds:view.bounds];
 		}
 		[self relayout];
-		viewInitialized = YES;
 	}
 
 	CGRect bounds = [view bounds];
@@ -609,6 +606,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		[view setBounds:CGRectMake(0, 0, bounds.size.width, bounds.size.height)];
 	}
 	
+	viewInitialized = YES;
 	return view;
 }
 
@@ -616,9 +614,11 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)setView:(TiUIView *)newView
 {
 	if (view != newView) {
+		viewInitialized = NO;
 		[view removeFromSuperview];
 		[view release];
 		view = [newView retain];
+		viewInitialized = (view != nil);
 	}
 	
 	if (self.modelDelegate != newView) {
@@ -792,12 +792,6 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(BOOL)viewAttached
 {
 	return view!=nil && windowOpened;
-}
-
-//TODO: When swapping about proxies, views are uninitialized, aren't they?
--(BOOL)viewInitialized
-{
-	return viewInitialized && (view != nil);
 }
 
 -(BOOL)viewReady
@@ -977,6 +971,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 -(void)detachView
 {
 	[destroyLock lock];
+	viewInitialized = NO;
 	if (view!=nil)
 	{
 		[self viewWillDetach];
@@ -1046,6 +1041,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		}
 		else
 		{
+			viewInitialized = NO;
 			view.proxy = nil;
 			[view performSelectorOnMainThread:@selector(release) withObject:nil waitUntilDone:NO];
 			view = nil;
@@ -1146,35 +1142,28 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 	[[self view] animationCompleted];
 }
 
--(void)makeViewPerformAction:(TiAction *)action
-{
-	[[self view] performSelector:[action selector] withObject:[action arg]];
-}
-
 -(void)makeViewPerformSelector:(SEL)selector withObject:(id)object createIfNeeded:(BOOL)create waitUntilDone:(BOOL)wait
 {
-	BOOL isAttached = [self viewAttached];
-	
-	if(!isAttached && !create)
+	if(!viewInitialized && !create)
 	{
 		return;
 	}
-
+	
 	if([NSThread isMainThread])
 	{
 		[[self view] performSelector:selector withObject:object];
 		return;
 	}
-
-	if(isAttached)
+	
+	dispatch_block_t viewBlock = ^(){[[self view] performSelector:selector withObject:object];};
+	if (wait)
 	{
-		[[self view] performSelectorOnMainThread:selector withObject:object waitUntilDone:wait];
-		return;
+		dispatch_sync(dispatch_get_main_queue(), viewBlock);
 	}
-
-	TiAction * ourAction = [[TiAction alloc] initWithTarget:nil selector:selector arg:object];
-	[self performSelectorOnMainThread:@selector(makeViewPerformAction:) withObject:ourAction waitUntilDone:wait];
-	[ourAction release];
+	else
+	{
+		dispatch_async(dispatch_get_main_queue(), viewBlock);
+	}
 }
 
 #pragma mark Listener Management
