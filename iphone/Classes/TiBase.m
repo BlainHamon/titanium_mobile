@@ -9,6 +9,7 @@
 #import "TiDebugger.h"
 
 #include <stdarg.h>
+#include <libkern/OSAtomic.h>
 
 NSMutableArray* TiCreateNonRetainingArray() 
 {
@@ -96,9 +97,54 @@ void TiExceptionThrowWithNameAndReason(NSString * exceptionName, NSString * mess
 	}	
 }
 
+NSMutableArray * TiThreadBlockQueue = nil;
+OSSpinLock TiThreadSpinLock = OS_SPINLOCK_INIT;
+
+
+void TiThreadProcessPendingMainThreadBlocks(NSTimeInterval duration, BOOL untilEmpty, void (^isDoneBlock)(BOOL *) )
+{
+	NSTimeInterval doneTime = [NSDate timeIntervalSinceReferenceDate] + duration;
+	BOOL shouldContinue = YES;
+	do {
+		int queueCount;
+		void (^thisAction)(void) = nil;
+
+		OSSpinLockLock(&TiThreadSpinLock);
+		queueCount = [TiThreadBlockQueue count];
+		if (queueCount > 0) {
+			thisAction = [[TiThreadBlockQueue objectAtIndex:0] retain];
+			[TiThreadBlockQueue removeObjectAtIndex:0];
+		}
+		OSSpinLockUnlock(&TiThreadSpinLock);
+		
+		if (thisAction != nil) {
+			thisAction();
+			[thisAction release];
+		}
+		
+		shouldContinue = [NSDate timeIntervalSinceReferenceDate] >= doneTime;
+		if (shouldContinue && untilEmpty) {	// If empty, exit beforehand.
+			shouldContinue = queueCount > 0;
+		}
+		if (isDoneBlock != NULL) { //isDoneBlock can override anything.
+			isDoneBlock(&shouldContinue);
+		}
+		if (shouldContinue && (queueCount <= 0)) {
+			/*
+			 *	If we're told to loop despite there being nothing to loop, it
+			 *	is likely we're waiting for the background thread to request
+			 *	something. In this case, we should briefly sleep.
+			 */
+			[NSThread sleepForTimeInterval:0.01];
+		}
+	} while (shouldContinue);
+}
+
 void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 {
+	//Set up the block that actuall will be executed (Which includes exception abilities)
 	__block NSException * caughtException = nil;
+	__block BOOL finished = NO;
 	void (^wrapperBlock)() = ^{
 		BOOL exceptionsWereSafe = TiExceptionIsSafeOnMainThread;
 		TiExceptionIsSafeOnMainThread = YES;
@@ -111,15 +157,63 @@ void TiThreadPerformOnMainThread(void (^mainBlock)(void),BOOL waitForFinish)
 			}
 		}
 		TiExceptionIsSafeOnMainThread = exceptionsWereSafe;
+		finished = YES;
 	};
-	
-	if (waitForFinish)
+	wrapperBlock = [[wrapperBlock copy] autorelease];
+	//Add to the block queue
+	int queueCount;
+	OSSpinLockLock(&TiThreadSpinLock);
+	queueCount = [TiThreadBlockQueue count];
+	if (TiThreadBlockQueue == nil)
 	{
-		dispatch_sync(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		TiThreadBlockQueue = [[NSMutableArray alloc] initWithObjects:wrapperBlock, nil];
 	}
 	else
 	{
-		dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)wrapperBlock);
+		[TiThreadBlockQueue addObject:wrapperBlock];
+	}
+	OSSpinLockUnlock(&TiThreadSpinLock);
+
+	/*
+	 *	Event coalescing trick:
+	 *	If the queueCount was 0, that means that there was likely no other
+	 *	dispatches in line. As such, we take the main queue and wait 10 ms
+	 *	in case others are also lining up. In this way, we can handle multiple
+	 *	blocks at the same time.
+	 *
+	 *	If we were NOT first in line when we prepared in the background,
+	 *	we run through the process without waiting. In the case where
+	 *	all blocks were processed (including our own) beforehand, the
+	 *	process function flows quickly out, no harm done. In the case
+	 *	where the previous in line finished before it got to our block,
+	 *	ThreadProcess will do the right thing.
+	 */
+	__block BOOL processingDone = NO;
+	dispatch_async(dispatch_get_main_queue(), (dispatch_block_t)^(){
+		if (queueCount <= 0) {
+			[NSThread sleepForTimeInterval:0.01];
+		}
+		TiThreadProcessPendingMainThreadBlocks(0.1, YES, nil);
+		processingDone = YES;
+	});
+
+	/*
+	 *	We can't dispatch_sync in the rare case of deadlock
+	 *	or hung action. Instead, we patiently wait for up to 100ms
+	 *	before resuming our background thread which hopefully
+	 *	will break the deadlock.
+	 *
+	 *	It's been untested, but theoretically possible that breaking the
+	 *	deadlock and there being a caughtException may leak, or worse,
+	 *	write to somewhere unexpected. The deadlock break is not 100% safe,
+	 *	and is a last-ditch effort. TODO: Perhaps a stronger message than WARN?
+	 */
+	while(waitForFinish && !finished)
+	{
+		[NSThread sleepForTimeInterval:0.01];
+		if (processingDone && !finished) {
+			NSLog(@"[WARN] Timed out waiting for action on main thread to complete.");
+		}
 	}
 	
 	if (caughtException != nil) {
