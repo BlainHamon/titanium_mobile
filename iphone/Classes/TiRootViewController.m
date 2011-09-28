@@ -13,6 +13,8 @@
 #import "TiApp.h"
 #import <MessageUI/MessageUI.h>
 
+#import "KeyboardAccessoryManager.h"
+
 @interface TiRootView : UIView
 @end
 
@@ -198,12 +200,6 @@
 		[self setOrientationModes:nil];
 		orientationHistory[0] = UIInterfaceOrientationPortrait;
 		orientationHistory[1] = UIInterfaceOrientationLandscapeLeft;
-		
-//Keyboard initialization
-		leaveCurve = UIViewAnimationCurveEaseIn;
-		enterCurve = UIViewAnimationCurveEaseIn;
-		leaveDuration = 0.3;
-		enterDuration = 0.3;
 
 /*
  *	Default image view -- Since this goes away after startup, it's made here and
@@ -221,11 +217,6 @@
 		[[UIDevice currentDevice] beginGeneratingDeviceOrientationNotifications];
 		NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
 		[nc addObserver:self selector:@selector(didOrientNotify:) name:UIDeviceOrientationDidChangeNotification object:nil];
-
-		[nc addObserver:self selector:@selector(keyboardDidHide:) name:UIKeyboardDidHideNotification object:nil];
-		[nc addObserver:self selector:@selector(keyboardDidShow:) name:UIKeyboardDidShowNotification object:nil];
-		[nc addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
-		[nc addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
 	}
 	return self;
 }
@@ -465,9 +456,9 @@
     
     if (newOrientation != oldOrientation && isCurrentlyVisible)
     {
-        [keyboardFocusedProxy blur:nil];
+		[[TiApp accessoryManager] statusBarWillManuallyRotate];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-        [keyboardFocusedProxy focus:nil];
+		[[TiApp accessoryManager] statusBarDidManuallyRotate];
     }
 
 	UIView * ourView = [self view];
@@ -821,6 +812,15 @@ What this does mean is that any
 	}
 	
 	return [self getDefaultOrientations];
+}
+
+-(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
+{
+	[[TiApp accessoryManager] didKeyboardFocusOnProxy:visibleProxy];
+}
+-(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
+{
+	[[TiApp accessoryManager] didKeyboardBlurOnProxy:blurredProxy];
 }
 
 @end

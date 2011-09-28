@@ -1196,7 +1196,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		return;
 	}
 	
-	TiThreadPerformOnMainThread(^(void){[[self view] performSelector:selector withObject:object];}, wait);
+	TiThreadPerformOnMainThread((dispatch_block_t)^(void){[[self view] performSelector:selector withObject:object];}, wait);
 }
 
 #pragma mark Listener Management

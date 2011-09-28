@@ -34,4 +34,10 @@
 -(UIView *)keyboardAccessoryViewForProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy withView:(UIView **)proxyView;
 
 
+-(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
+-(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
+
+-(void)statusBarWillManuallyRotate;
+-(void)statusBarDidManuallyRotate;
+
 @end

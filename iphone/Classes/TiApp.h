@@ -7,6 +7,11 @@
 
 #import <UIKit/UIKit.h>
 
+
+
+
+
+
 #import "TiHost.h"
 #import "KrollBridge.h"
 #ifdef USE_TI_UIWEBVIEW
@@ -24,6 +29,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
     }
 }
 
+@class KeyboardAccessoryManager;
 @interface TiApp : TiHost <UIApplicationDelegate> 
 {
 	UIWindow *window;
@@ -44,6 +50,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	int networkActivityCount; //We now can use atomic increment/decrement instead. This value is 0 upon initialization anyways.
 	
 	TiRootViewController *controller;
+	KeyboardAccessoryManager * accessoryManager;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -62,10 +69,12 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 @property (nonatomic, assign) id remoteNotificationDelegate;
 @property (nonatomic, readonly) NSDictionary* remoteNotification;
 @property (nonatomic, retain) TiRootViewController* controller;
+@property (nonatomic, readonly) KeyboardAccessoryManager * accessoryManager;
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
 +(TiApp*)app;
 //Convenience method
 +(TiRootViewController*)controller;
++(KeyboardAccessoryManager*)accessoryManager;
 +(TiContextGroupRef)contextGroup;
 
 -(void)attachXHRBridgeIfRequired;

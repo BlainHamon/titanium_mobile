@@ -11,6 +11,16 @@
 
 @implementation KeyboardAccessoryManager
 
+-(void)statusBarWillManuallyRotate;
+{
+	[keyboardFocusedProxy blur:nil];
+}
+
+-(void)statusBarDidManuallyRotate;
+{
+	[keyboardFocusedProxy focus:nil];	
+}
+
 -(id)init
 {
 	if([super init] != nil)

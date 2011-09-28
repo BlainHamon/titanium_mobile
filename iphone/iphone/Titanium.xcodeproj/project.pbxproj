@@ -1618,8 +1618,6 @@
 				1D6D77F61432A23E00152829 /* Module API notes.txt */,
 				1D6D77F51432A18200152829 /* Public API */,
 				1D6D77F41432A17100152829 /* Private API */,
-				1DC04CEF13BEE71700A0760F /* KrollException.h */,
-				1DC04CF013BEE71800A0760F /* KrollException.m */,
 			);
 			name = "Module API";
 			sourceTree = "<group>";
@@ -1636,12 +1634,42 @@
 		1D6D77F51432A18200152829 /* Public API */ = {
 			isa = PBXGroup;
 			children = (
+				1D6D78081432EF1B00152829 /* Objective C Classes */,
+				1D6D78071432EEFB00152829 /* C Functions and utilities */,
+			);
+			name = "Public API";
+			sourceTree = "<group>";
+		};
+		1D6D78071432EEFB00152829 /* C Functions and utilities */ = {
+			isa = PBXGroup;
+			children = (
 				1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */,
 				1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */,
+				1DC04CEF13BEE71700A0760F /* KrollException.h */,
+				1DC04CF013BEE71800A0760F /* KrollException.m */,
 				1D6D78011432B93400152829 /* TiLog.h */,
 				1D6D78021432B93400152829 /* TiLog.m */,
 			);
-			name = "Public API";
+			name = "C Functions and utilities";
+			sourceTree = "<group>";
+		};
+		1D6D78081432EF1B00152829 /* Objective C Classes */ = {
+			isa = PBXGroup;
+			children = (
+				1D6D78091432EFFB00152829 /* Singletons */,
+			);
+			name = "Objective C Classes";
+			sourceTree = "<group>";
+		};
+		1D6D78091432EFFB00152829 /* Singletons */ = {
+			isa = PBXGroup;
+			children = (
+				24F620521199F26500EEAD3C /* TiApp.h */,
+				24F620531199F26500EEAD3C /* TiApp.mm */,
+				24F620581199F27700EEAD3C /* TiRootViewController.h */,
+				24F620591199F27700EEAD3C /* TiRootViewController.m */,
+			);
+			name = Singletons;
 			sourceTree = "<group>";
 		};
 		242E95C211BAC8070046A0D0 /* Debugger */ = {
@@ -1990,10 +2018,6 @@
 				B473FB65126F8E8900E29C73 /* Utility Macros */,
 				24F620601199F28600EEAD3C /* TiErrorController.h */,
 				24F620571199F27700EEAD3C /* TiErrorController.m */,
-				24F620581199F27700EEAD3C /* TiRootViewController.h */,
-				24F620591199F27700EEAD3C /* TiRootViewController.m */,
-				24F620521199F26500EEAD3C /* TiApp.h */,
-				24F620531199F26500EEAD3C /* TiApp.mm */,
 				24F5AEB2111F9DE9005C9199 /* TiFile.h */,
 				24F5AEB3111F9DE9005C9199 /* TiFile.m */,
 				24CA8A2C111161FD0084E2DE /* TiUIView.m */,

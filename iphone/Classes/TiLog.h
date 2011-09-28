@@ -23,7 +23,6 @@ typedef enum {
  *	These are the severities that are accessed by methods on the API module
  *	in Javascript.
  */
-	
 	kTiLogSeverityAppDebug,
 	kTiLogSeverityAppInfo,
 	kTiLogSeverityAppWarn,

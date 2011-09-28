@@ -17,6 +17,8 @@
 #import <QuartzCore/QuartzCore.h>
 #import <AVFoundation/AVFoundation.h>
 
+#import "KeyboardAccessoryManager.h"
+
 #import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
@@ -103,7 +105,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
     applicationInMemoryPanic = NO;
 }
 
-@synthesize window, remoteNotificationDelegate, controller;
+@synthesize window, remoteNotificationDelegate, controller, accessoryManager;
 
 + (TiApp*)app
 {
@@ -113,6 +115,11 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 +(TiRootViewController*)controller;
 {
 	return [sharedApp controller];
+}
+
++(KeyboardAccessoryManager*)accessoryManager;
+{
+	return [sharedApp accessoryManager];
 }
 
 -(TiContextGroupRef)contextGroup
@@ -162,6 +169,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	sharedApp = self;
 	
+	accessoryManager = [[KeyboardAccessoryManager alloc] init];
 	// attach our main view controller
 	controller = [[TiRootViewController alloc] init];
 	
