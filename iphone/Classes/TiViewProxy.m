@@ -1196,15 +1196,7 @@ LAYOUTPROPERTIES_SETTER(setMinHeight,minimumHeight,TiFixedValueRuleFromObject,[s
 		return;
 	}
 	
-	dispatch_block_t viewBlock = ^(){[[self view] performSelector:selector withObject:object];};
-	if (wait)
-	{
-		dispatch_sync(dispatch_get_main_queue(), viewBlock);
-	}
-	else
-	{
-		dispatch_async(dispatch_get_main_queue(), viewBlock);
-	}
+	TiThreadPerformOnMainThread(^(void){[[self view] performSelector:selector withObject:object];}, wait);
 }
 
 #pragma mark Listener Management

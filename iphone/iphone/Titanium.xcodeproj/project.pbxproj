@@ -902,6 +902,7 @@
 		1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollFunctionUtilities.m; sourceTree = "<group>"; };
 		1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollFunctionUtilities.h; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D6D77F61432A23E00152829 /* Module API notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "Module API notes.txt"; path = "../Module API notes.txt"; sourceTree = "<group>"; };
 		1DC04CEF13BEE71700A0760F /* KrollException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollException.h; sourceTree = "<group>"; };
 		1DC04CF013BEE71800A0760F /* KrollException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollException.m; sourceTree = "<group>"; };
 		1DCC53EC13FEE38E00DF3EE5 /* KeyboardAccessoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardAccessoryManager.h; sourceTree = "<group>"; };
@@ -1606,6 +1607,36 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		1D6D77F21432A10F00152829 /* Module API */ = {
+			isa = PBXGroup;
+			children = (
+				1D6D77F61432A23E00152829 /* Module API notes.txt */,
+				1D6D77F51432A18200152829 /* Public API */,
+				1D6D77F41432A17100152829 /* Private API */,
+				1DC04CEF13BEE71700A0760F /* KrollException.h */,
+				1DC04CF013BEE71800A0760F /* KrollException.m */,
+			);
+			name = "Module API";
+			sourceTree = "<group>";
+		};
+		1D6D77F41432A17100152829 /* Private API */ = {
+			isa = PBXGroup;
+			children = (
+				1D5034BB13BCE9FF0053876B /* KrollFunctionInvocation.h */,
+				1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */,
+			);
+			name = "Private API";
+			sourceTree = "<group>";
+		};
+		1D6D77F51432A18200152829 /* Public API */ = {
+			isa = PBXGroup;
+			children = (
+				1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */,
+				1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */,
+			);
+			name = "Public API";
+			sourceTree = "<group>";
+		};
 		242E95C211BAC8070046A0D0 /* Debugger */ = {
 			isa = PBXGroup;
 			children = (
@@ -1674,6 +1705,7 @@
 		24CA8902111160BE0084E2DE /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				1D6D77F21432A10F00152829 /* Module API */,
 				24EB07D1111D420D001DC2D1 /* DOM */,
 				24CA8A09111161D60084E2DE /* Modules */,
 				24CA8A0A111161DC0084E2DE /* Utils */,
@@ -1941,12 +1973,6 @@
 				B4DE7E4D11823E990006DDE1 /* TiGradient.m */,
 				B468B4EF11B5816F007D1C1E /* TiLayoutQueue.h */,
 				B468B4F011B5816F007D1C1E /* TiLayoutQueue.m */,
-				1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */,
-				1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */,
-				1D5034BB13BCE9FF0053876B /* KrollFunctionInvocation.h */,
-				1D5034BC13BCE9FF0053876B /* KrollFunctionInvocation.m */,
-				1DC04CEF13BEE71700A0760F /* KrollException.h */,
-				1DC04CF013BEE71800A0760F /* KrollException.m */,
 			);
 			name = Utils;
 			sourceTree = "<group>";

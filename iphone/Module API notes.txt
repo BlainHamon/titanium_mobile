@@ -1,0 +1,3 @@
+TODO:
+
+Calling a callback function. Right now KrollFunctionUtilities and KrollFunctionInvocation are pretty darn read-only.
