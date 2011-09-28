@@ -15,6 +15,9 @@
 		1D5B5FD313BD548C00665CFC /* KrollFunctionUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
 		1D60589F0D05DD5A006BFB54 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1D30AB110D05D00D00671497 /* Foundation.framework */; };
+		1D6D78031432B93400152829 /* TiLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D6D78021432B93400152829 /* TiLog.m */; };
+		1D6D78041432B93400152829 /* TiLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D6D78021432B93400152829 /* TiLog.m */; };
+		1D6D78051432B93400152829 /* TiLog.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D6D78021432B93400152829 /* TiLog.m */; };
 		1DC04CF113BEE71800A0760F /* KrollException.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DC04CF013BEE71800A0760F /* KrollException.m */; };
 		1DC04CF213BEE71800A0760F /* KrollException.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DC04CF013BEE71800A0760F /* KrollException.m */; };
 		1DC04CF313BEE71800A0760F /* KrollException.m in Sources */ = {isa = PBXBuildFile; fileRef = 1DC04CF013BEE71800A0760F /* KrollException.m */; };
@@ -903,6 +906,8 @@
 		1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollFunctionUtilities.h; sourceTree = "<group>"; };
 		1D6058910D05DD3D006BFB54 /* Titanium.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Titanium.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		1D6D77F61432A23E00152829 /* Module API notes.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "Module API notes.txt"; path = "../Module API notes.txt"; sourceTree = "<group>"; };
+		1D6D78011432B93400152829 /* TiLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TiLog.h; sourceTree = "<group>"; };
+		1D6D78021432B93400152829 /* TiLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TiLog.m; sourceTree = "<group>"; };
 		1DC04CEF13BEE71700A0760F /* KrollException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KrollException.h; sourceTree = "<group>"; };
 		1DC04CF013BEE71800A0760F /* KrollException.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KrollException.m; sourceTree = "<group>"; };
 		1DCC53EC13FEE38E00DF3EE5 /* KeyboardAccessoryManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyboardAccessoryManager.h; sourceTree = "<group>"; };
@@ -1633,6 +1638,8 @@
 			children = (
 				1D5B5FCF13BD548B00665CFC /* KrollFunctionUtilities.m */,
 				1D5B5FD013BD548B00665CFC /* KrollFunctionUtilities.h */,
+				1D6D78011432B93400152829 /* TiLog.h */,
+				1D6D78021432B93400152829 /* TiLog.m */,
 			);
 			name = "Public API";
 			sourceTree = "<group>";
@@ -3386,6 +3393,7 @@
 				2B94603613F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603713F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC53EE13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */,
+				1D6D78031432B93400152829 /* TiLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3660,6 +3668,7 @@
 				2B94603813F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603913F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC53EF13FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */,
+				1D6D78041432B93400152829 /* TiLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3934,6 +3943,7 @@
 				2B94603A13F0A2AE000C5BEA /* TiUIiOSCoverFlowView.m in Sources */,
 				2B94603B13F0A2AE000C5BEA /* TiUIiOSCoverFlowViewProxy.m in Sources */,
 				1DCC53F013FEE38E00DF3EE5 /* KeyboardAccessoryManager.m in Sources */,
+				1D6D78051432B93400152829 /* TiLog.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
