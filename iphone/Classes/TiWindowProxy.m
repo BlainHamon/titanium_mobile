@@ -51,7 +51,12 @@ TiOrientationFlags TiOrientationFlagsFromObject(id args)
 	return result;
 }
 
+@interface TiWindowProxy ()
 
+-(void)openOnUIThread:(NSArray*)args;
+-(void)closeOnUIThread:(id)args;
+
+@end
 
 @implementation TiWindowProxy
 @synthesize navController, controller;
@@ -390,7 +395,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		}
 		opening = YES;
 	}
-	[self performSelectorOnMainThread:@selector(openOnUIThread:) withObject:args waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^(void){[self openOnUIThread:args];}, YES);
 }
 
 -(void)openOnUIThread:(NSArray*)args
@@ -551,7 +556,7 @@ END_UI_THREAD_PROTECTED_VALUE(opened)
 		[self rememberProxy:closeAnimation];
 	}
 
-	[self performSelectorOnMainThread:@selector(closeOnUIThread:) withObject:args waitUntilDone:YES];
+	TiThreadPerformOnMainThread(^(void){[self closeOnUIThread:args];}, YES);
 }
 
 -(void)closeOnUIThread:(id)args
