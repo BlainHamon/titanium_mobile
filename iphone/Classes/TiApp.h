@@ -6,51 +6,47 @@
  */
 
 #import <UIKit/UIKit.h>
-
-
-
-
-
-
-#import "TiHost.h"
-#import "KrollBridge.h"
-#ifdef USE_TI_UIWEBVIEW
-	#import "XHRBridge.h"
-#endif
-#import "TiRootViewController.h"
 #import <TiCore/TiContextRef.h>
 
-extern BOOL applicationInMemoryPanic;
+//TODO: Maybe make the app delegate just use a TiHost instead of subclassing?
+#import "TiHost.h"
+#ifdef USE_TI_UIWEBVIEW
+#import "XHRBridge.h"
+#endif
 
-TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
-{
-    while (applicationInMemoryPanic) {
-        [NSThread sleepForTimeInterval:0.01];
-    }
-}
-
+@class KrollBridge;
+@class TiRootViewController;
 @class KeyboardAccessoryManager;
+
+#pragma mark Public API
+
+
+#pragma mark Unsorted API
+
 @interface TiApp : TiHost <UIApplicationDelegate> 
 {
+// Internal Singletons
 	UIWindow *window;
-	UIImageView *loadView;
-	BOOL loaded;
-	BOOL handledModal;
+	TiRootViewController *controller;
+	KeyboardAccessoryManager * accessoryManager;
 
+// Internal Javascript structures
 	TiContextGroupRef contextGroup;
 	KrollBridge *kjsBridge;
     
 #ifdef USE_TI_UIWEBVIEW
 	XHRBridge *xhrBridge;
 #endif
+
+// Should be moved to RootViewController
+	BOOL handledModal;
+	
 	
 	NSMutableDictionary *launchOptions;
 	NSTimeInterval started;
 	
 	int networkActivityCount; //We now can use atomic increment/decrement instead. This value is 0 upon initialization anyways.
 	
-	TiRootViewController *controller;
-	KeyboardAccessoryManager * accessoryManager;
 	NSString *userAgent;
 	NSString *remoteDeviceUUID;
 	
@@ -58,7 +54,7 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 	NSDictionary* remoteNotification;
 	
 	NSString *sessionId;
-
+	
 	UIBackgroundTaskIdentifier bgTask;
 	NSMutableArray *backgroundServices;
 	NSMutableArray *runningServices;
@@ -71,11 +67,11 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 @property (nonatomic, retain) TiRootViewController* controller;
 @property (nonatomic, readonly) KeyboardAccessoryManager * accessoryManager;
 @property (nonatomic, readonly) TiContextGroupRef contextGroup;
+
+
 +(TiApp*)app;
 //Convenience method
 +(TiRootViewController*)controller;
-+(KeyboardAccessoryManager*)accessoryManager;
-+(TiContextGroupRef)contextGroup;
 
 -(void)attachXHRBridgeIfRequired;
 
@@ -96,16 +92,25 @@ TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run o
 
 -(KrollBridge*)krollBridge;
 
-
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
-
 -(void)beginBackgrounding;
 -(void)endBackgrounding;
 -(void)registerBackgroundService:(TiProxy*)proxy;
 -(void)unregisterBackgroundService:(TiProxy*)proxy;
 -(void)stopBackgroundService:(TiProxy*)proxy;
 -(UILocalNotification*)localNotification;
-#endif
 
 @end
+
+extern BOOL applicationInMemoryPanic;
+
+TI_INLINE void waitForMemoryPanicCleared()   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
+{
+    while (applicationInMemoryPanic) {
+        [NSThread sleepForTimeInterval:0.01];
+    }
+}
+
+
+
+
 

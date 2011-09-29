@@ -6,8 +6,11 @@
  */
 #include <stdio.h>
 #include <execinfo.h>
+#include <libkern/OSAtomic.h>
 
 #import "TiApp.h"
+#import "KrollBridge.h"
+#import "TiRootViewController.h"
 #import "Webcolor.h"
 #import "TiBase.h"
 #import "TiErrorController.h"
@@ -19,7 +22,6 @@
 
 #import "KeyboardAccessoryManager.h"
 
-#import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -584,7 +586,6 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 #ifdef USE_TI_UIWEBVIEW
 	RELEASE_TO_NIL(xhrBridge);
 #endif	
-	RELEASE_TO_NIL(loadView);
 	RELEASE_TO_NIL(window);
 	RELEASE_TO_NIL(launchOptions);
 	RELEASE_TO_NIL(controller);

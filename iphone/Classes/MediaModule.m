@@ -18,6 +18,7 @@
 #import "TiMediaAudioSession.h"
 #import "TiMediaMusicPlayer.h"
 #import "TiMediaItem.h"
+#import "TiRootViewController.h"
 
 #import <AudioToolbox/AudioToolbox.h>
 #import <AVFoundation/AVAudioPlayer.h>

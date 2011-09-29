@@ -1011,7 +1011,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	[[NSThread currentThread] setName:[self threadName]];
 	cachedThreadId = [NSThread currentThread];
 	pthread_rwlock_rdlock(&KrollGarbageCollectionLock);
-//	context = TiGlobalContextCreateInGroup([TiApp contextGroup],NULL);
+//	context = TiGlobalContextCreateInGroup([[TiApp app] contextGroup],NULL);
 	context = TiGlobalContextCreate(NULL);
 	TiObjectRef globalRef = TiContextGetGlobalObject(context);
 		

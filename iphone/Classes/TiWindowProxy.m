@@ -10,6 +10,7 @@
 #import "TiUtils.h"
 #import "TiAnimation.h"
 #import "TiErrorController.h"
+#import "TiRootViewController.h"
 
 TiOrientationFlags TiOrientationFlagsFromObject(id args)
 {

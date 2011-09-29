@@ -456,9 +456,9 @@
     
     if (newOrientation != oldOrientation && isCurrentlyVisible)
     {
-		[[TiApp accessoryManager] statusBarWillManuallyRotate];
+		[[[TiApp app] accessoryManager] statusBarWillManuallyRotate];
         [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-		[[TiApp accessoryManager] statusBarDidManuallyRotate];
+		[[[TiApp app] accessoryManager] statusBarDidManuallyRotate];
     }
 
 	UIView * ourView = [self view];
@@ -816,11 +816,11 @@ What this does mean is that any
 
 -(void)didKeyboardFocusOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)visibleProxy;
 {
-	[[TiApp accessoryManager] didKeyboardFocusOnProxy:visibleProxy];
+	[[[TiApp app] accessoryManager] didKeyboardFocusOnProxy:visibleProxy];
 }
 -(void)didKeyboardBlurOnProxy:(TiViewProxy<TiKeyboardFocusableView> *)blurredProxy;
 {
-	[[TiApp accessoryManager] didKeyboardBlurOnProxy:blurredProxy];
+	[[[TiApp app] accessoryManager] didKeyboardBlurOnProxy:blurredProxy];
 }
 
 @end
