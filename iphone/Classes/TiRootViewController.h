@@ -8,6 +8,11 @@
 #import "TiRootController.h"
 #import "TiWindowProxy.h"
 
+/*
+ *	Like TiApp, the internals of TiRootViewController will be moved out of the
+ *	public API's view. So the start is NOT public API.
+ */
+
 @interface TiRootViewController : UIViewController<UIApplicationDelegate,TiRootController,TiOrientationController> {
 @private
 //Presentation: background image and color.
@@ -40,6 +45,19 @@
 
 //Keyboard handling -- This can probably be done in a better way.
 }
+
+#pragma mark Public API:
+
+/*
+ *	Public APIs are going to get an overhaul to more closely resemble an iOS
+ *	
+ */
+
+
+#pragma mark Unsorted API:
+
+
+
 
 @property(nonatomic,readonly) BOOL keyboardVisible;
 @property(nonatomic,readonly) UIImageView * defaultImageView;

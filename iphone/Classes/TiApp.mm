@@ -143,6 +143,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)startNetwork
 {
+	DEPRECATED_REPLACED(@"startNetwork", @"1.9", @"1.10", @"didStartNetworkConnection");
+	[self didStartNetworkConnection];
+}
+
+-(void)didStartNetworkConnection
+{
 	ENSURE_UI_THREAD_0_ARGS;
 	networkActivityCount ++;
 	if (networkActivityCount == 1)
@@ -152,6 +158,12 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 }
 
 -(void)stopNetwork
+{
+	DEPRECATED_REPLACED(@"stopNetwork", @"1.9", @"1.10", @"didStopNetworkConnection");
+	[self didStopNetworkConnection];
+}
+
+-(void)didStopNetworkConnection
 {
 	ENSURE_UI_THREAD_0_ARGS;
 	networkActivityCount --;
