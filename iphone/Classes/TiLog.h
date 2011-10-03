@@ -42,7 +42,7 @@ typedef enum {
 
 	kTiLogSeverityModuleInfo,
 	kTiLogSeverityModuleWarn,
-	kTiLogSeverityModuleDepricated,
+	kTiLogSeverityModuleDeprecated,
 	kTiLogSeverityModuleCaughtError,
 	kTiLogSeverityModuleInternalDebug,
 	kTiLogSeverityModuleInternalInconsistency,
