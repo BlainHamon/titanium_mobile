@@ -332,7 +332,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	if (request!=nil && connected)
 	{
 		connected = NO;
-		[[TiApp app] stopNetwork];
+		[[TiApp app] didStopNetworkConnection];
 		[request cancel];
 		[self forgetSelf];
 	}
@@ -528,7 +528,7 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	connected = YES;
 	downloadProgress = 0;
 	uploadProgress = 0;
-	[[TiApp app] startNetwork];
+	[[TiApp app] didStartNetworkConnection];
 	[self _fireReadyStateChange:NetworkClientStateLoading failed:NO];
 	[request setAllowCompressedResponse:YES];
 	
@@ -544,9 +544,9 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	}
 	else
 	{
-		[[TiApp app] startNetwork];
+		[[TiApp app] didStartNetworkConnection];
 		[request startSynchronous];
-		[[TiApp app] stopNetwork];
+		[[TiApp app] didStopNetworkConnection];
 	}
 }
 
@@ -593,12 +593,12 @@ extern NSString * const TI_APPLICATION_DEPLOYTYPE;
 	[self _fireReadyStateChange:NetworkClientStateDone failed:NO];
 	connected = NO;
 	[self forgetSelf];
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 }
 
 -(void)requestFailed:(ASIHTTPRequest *)request_
 {
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	connected=NO;
 	
 	NSError *error = [request error];

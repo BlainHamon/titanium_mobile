@@ -42,7 +42,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 - (void)requestFinished:(ASIHTTPRequest *)request
 {
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	
 	NSString *responseString = [request responseString];
 	SBJSON *json = [[[SBJSON alloc] init] autorelease];
@@ -65,7 +65,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 
 - (void)requestFailed:(ASIHTTPRequest *)request
 {
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	
 	NSError *error = [request error];
 	NSDictionary *event = [NSDictionary dictionaryWithObjectsAndKeys:NUMBOOL(NO),@"success",[error description],@"message",nil];
@@ -175,7 +175,7 @@ const NSString *apiEndpoint = @"http://query.yahooapis.com/v1/public/yql?format=
 	YQLCallback *job = [[YQLCallback alloc] initWithCallback:callback module:self];
 	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:[NSURL URLWithString:theurl]];
 	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-	[[TiApp app] startNetwork];
+	[[TiApp app] didStartNetworkConnection];
 	[req setDelegate:job];
 	[req startAsynchronous];
 }

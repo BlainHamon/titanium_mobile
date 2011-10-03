@@ -508,9 +508,9 @@ DEFINE_EXCEPTIONS
 	
 	ASIHTTPRequest *req = [ASIHTTPRequest requestWithURL:url];
 	[req addRequestHeader:@"User-Agent" value:[[TiApp app] userAgent]];
-	[[TiApp app] startNetwork];
+	[[TiApp app] didStartNetworkConnection];
 	[req start];
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	
 	if (req!=nil && [req error]==nil)
 	{
@@ -605,7 +605,7 @@ DEFINE_EXCEPTIONS
 	[req setTimeOutSeconds:20];
 	[request setRequest:req];
 	
-	[[TiApp app] startNetwork];
+	[[TiApp app] didStartNetworkConnection];
 	
 	[queue addOperation:req];
 }
@@ -696,7 +696,7 @@ DEFINE_EXCEPTIONS
 	// hold while we're working with it (release below)
 	[request retain];
 	
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
 	if ([req cancelled]==NO)
 	{
@@ -788,7 +788,7 @@ DEFINE_EXCEPTIONS
 
 -(void)queueRequestDidFail:(ASIHTTPRequest*)request
 {
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	ImageLoaderRequest *req = [[request userInfo] objectForKey:@"request"];
 	NSError *error = [request error];
 	if ([error code] == ASIRequestCancelledErrorType && [error domain] == NetworkRequestErrorDomain)

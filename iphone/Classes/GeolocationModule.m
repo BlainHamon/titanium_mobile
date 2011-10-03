@@ -78,7 +78,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestFinished:(ASIHTTPRequest *)request
 {
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 
 	if (request!=nil && [request error]==nil)
 	{
@@ -95,7 +95,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)requestFailed:(ASIHTTPRequest *)request
 {
-	[[TiApp app] stopNetwork];
+	[[TiApp app] didStopNetworkConnection];
 	[self requestError:[[request error] description]];
 	[self autorelease];
 }
@@ -457,7 +457,7 @@ extern BOOL const TI_APPLICATION_ANALYTICS;
 
 -(void)performGeo:(NSString*)direction address:(NSString*)address callback:(GeolocationCallback*)callback
 {
-	[[TiApp app] startNetwork];
+	[[TiApp app] didStartNetworkConnection];
 	
 	id aguid = TI_APPLICATION_GUID;
 	id sid = [[TiApp app] sessionId];
