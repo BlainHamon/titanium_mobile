@@ -22,6 +22,8 @@
 
 #import "KeyboardAccessoryManager.h"
 
+#import "ApplicationDefaults.h"
+#import <libkern/OSAtomic.h>
 
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
@@ -98,6 +100,9 @@ BOOL applicationInMemoryPanic = NO;
 
 TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run on main thread, or else there is a risk of deadlock!
 
+@interface TiApp()
+-(void)checkBackgroundServices;
+@end
 
 @implementation TiApp
 
@@ -202,6 +207,17 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	}
 #endif
 }
+//To load application Defaults 
+- (void) loadUserDefaults
+{
+	NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+	NSDictionary *appDefaults = [[NSDictionary alloc] initWithDictionary:[ApplicationDefaults copyDefaults]];
+	if(appDefaults)
+	{
+		[defaults registerDefaults:appDefaults];
+	}
+	[appDefaults release];
+}
 
 - (void)boot
 {
@@ -253,6 +269,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 {
 	NSSetUncaughtExceptionHandler(&MyUncaughtExceptionHandler);
 	[self initController];
+	[self loadUserDefaults];
 	[self boot];
 }
 
@@ -311,7 +328,7 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	{
 		[self generateNotification:notification];
 	}
-	
+	[self loadUserDefaults];
 	[self boot];
 	
 	return YES;
@@ -648,13 +665,16 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 
 -(void)beginBackgrounding
 {
-	runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	if (runningServices == nil) {
+		runningServices = [[NSMutableArray alloc] initWithCapacity:[backgroundServices count]];
+	}
 	
 	for (TiProxy *proxy in backgroundServices)
 	{
 		[runningServices addObject:proxy];
 		[proxy performSelector:@selector(beginBackground)];
 	}
+	[self checkBackgroundServices];
 }
 
 -(void)endBackgrounding
@@ -689,24 +709,10 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 	[backgroundServices addObject:proxy];
 }
 
--(void)unregisterBackgroundService:(TiProxy*)proxy
+-(void)checkBackgroundServices
 {
-	[backgroundServices removeObject:proxy];
-	if ([backgroundServices count]==0)
-	{
-		RELEASE_TO_NIL(backgroundServices);
-	}
-}
-
--(void)stopBackgroundService:(TiProxy *)proxy
-{
-	[runningServices removeObject:proxy];
-	[backgroundServices removeObject:proxy];
-	
 	if ([runningServices count] == 0)
-	{
-		RELEASE_TO_NIL(runningServices);
-		
+	{		
 		// Synchronize the cleanup call on the main thread in case
 		// the expiration handler is fired at the same time.
 		dispatch_async(dispatch_get_main_queue(), ^{
@@ -717,6 +723,19 @@ TI_INLINE void waitForMemoryPanicCleared();   //WARNING: This must never be run 
 			}
 		});
 	}
+}
+
+-(void)unregisterBackgroundService:(TiProxy*)proxy
+{
+	[backgroundServices removeObject:proxy];
+	[self checkBackgroundServices];
+}
+
+-(void)stopBackgroundService:(TiProxy *)proxy
+{
+	[runningServices removeObject:proxy];
+	[backgroundServices removeObject:proxy];
+	[self checkBackgroundServices];
 }
 
 #endif
