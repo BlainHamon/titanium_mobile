@@ -5,6 +5,7 @@
  * Please see the LICENSE included with this distribution for details.
  */
 
+
 #import "TiRootViewController.h"
 #import "TiUtils.h"
 #import "TiViewProxy.h"
@@ -286,6 +287,88 @@
 	[rootView release];
 }
 
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
+{
+	UIApplication * ourApp = [UIApplication sharedApplication];
+	UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
+	CGAffineTransform transform;
+	
+	switch (newOrientation)
+	{
+		case UIInterfaceOrientationPortraitUpsideDown:
+			transform = CGAffineTransformMakeRotation(M_PI);
+			break;
+		case UIInterfaceOrientationLandscapeLeft:
+			transform = CGAffineTransformMakeRotation(-M_PI_2);
+			break;
+		case UIInterfaceOrientationLandscapeRight:
+			transform = CGAffineTransformMakeRotation(M_PI_2);
+			break;
+		default:
+			transform = CGAffineTransformIdentity;
+			break;
+	}
+	
+	[self willRotateToInterfaceOrientation:newOrientation duration:duration];
+	
+    // Have to batch all of the animations together, so that it doesn't look funky
+    if (duration > 0.0)
+	{
+		[UIView beginAnimations:@"orientation" context:nil];
+		[UIView setAnimationDuration:duration];
+	}
+    
+    
+    if (newOrientation != oldOrientation && isCurrentlyVisible)
+    {
+		[[[TiApp app] accessoryManager] statusBarWillManuallyRotate];
+        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
+		[[[TiApp app] accessoryManager] statusBarDidManuallyRotate];
+    }
+	
+	UIView * ourView = [self view];
+	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
+	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
+	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
+		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
+	}
+    [ourView setTransform:transform];
+	viewFrame.origin=CGPointZero;
+	[ourView setBounds:viewFrame];
+	[self resizeView];
+	
+	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
+	
+    //Propigate this to everyone else. This has to be done INSIDE the animation.
+    [self repositionSubviews];
+    
+	lastOrientation = newOrientation;
+	
+	
+	if (duration > 0.0)
+	{
+		[UIView commitAnimations];
+	}
+	
+	[self didRotateFromInterfaceOrientation:oldOrientation];
+}
+
+-(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
+{
+	NSTimeInterval animation = ([self focusedViewController]==nil)?0.0:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
+	[self manuallyRotateToOrientation:newOrientation duration:animation];
+}
+
+-(void)manuallyRotate
+{
+	for (int i = 0; i<4; i++) {
+		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
+			[self manuallyRotateToOrientation:orientationHistory[i]];
+			return;
+		}
+	}
+}
+
 -(void)updateOrientationIfNeeded
 {
 	UIInterfaceOrientation newOrientation = (UIInterfaceOrientation)
@@ -350,7 +433,8 @@
 
 	for (TiWindowProxy * thisProxy in windowProxies)
 	{
-        if ([thisProxy allowsOrientation:toInterfaceOrientation]) {
+		TiOrientationFlags windowFlags = [thisProxy orientationFlags];
+        if (TI_ORIENTATION_ALLOWED(windowFlags, toInterfaceOrientation) || (windowFlags == TiOrientationNone)) {
             UIViewController * thisNavCon = [thisProxy navController];
             if (thisNavCon == nil)
             {
@@ -429,89 +513,6 @@
 	//Keyboard handling injection.	
 }
 
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation)newOrientation duration:(NSTimeInterval)duration
-{
-	UIApplication * ourApp = [UIApplication sharedApplication];
-	UIInterfaceOrientation oldOrientation = [ourApp statusBarOrientation];
-	CGAffineTransform transform;
-
-	switch (newOrientation)
-	{
-		case UIInterfaceOrientationPortraitUpsideDown:
-			transform = CGAffineTransformMakeRotation(M_PI);
-			break;
-		case UIInterfaceOrientationLandscapeLeft:
-			transform = CGAffineTransformMakeRotation(-M_PI_2);
-			break;
-		case UIInterfaceOrientationLandscapeRight:
-			transform = CGAffineTransformMakeRotation(M_PI_2);
-			break;
-		default:
-			transform = CGAffineTransformIdentity;
-			break;
-	}
-
-	[self willRotateToInterfaceOrientation:newOrientation duration:duration];
-	
-    // Have to batch all of the animations together, so that it doesn't look funky
-    if (duration > 0.0)
-	{
-		[UIView beginAnimations:@"orientation" context:nil];
-		[UIView setAnimationDuration:duration];
-	}
-    
-    
-    if (newOrientation != oldOrientation && isCurrentlyVisible)
-    {
-		[[[TiApp app] accessoryManager] statusBarWillManuallyRotate];
-        [ourApp setStatusBarOrientation:newOrientation animated:(duration > 0.0)];
-		[[[TiApp app] accessoryManager] statusBarDidManuallyRotate];
-    }
-
-	UIView * ourView = [self view];
-	CGRect viewFrame = [[UIScreen mainScreen] applicationFrame];
-	[ourView setCenter:CGPointMake(viewFrame.origin.x + viewFrame.size.width/2.0, viewFrame.origin.y + viewFrame.size.height/2.0)];
-	if (UIInterfaceOrientationIsLandscape(newOrientation)) {
-		viewFrame.size = CGSizeMake(viewFrame.size.height, viewFrame.size.width);
-	}
-    [ourView setTransform:transform];
-	viewFrame.origin=CGPointZero;
-	[ourView setBounds:viewFrame];
-	[self resizeView];
-
-	[self willAnimateRotationToInterfaceOrientation:newOrientation duration:duration];
-
-    //Propigate this to everyone else. This has to be done INSIDE the animation.
-    [self repositionSubviews];
-    
-	lastOrientation = newOrientation;
-
-	
-	if (duration > 0.0)
-	{
-		[UIView commitAnimations];
-	}
-	
-	[self didRotateFromInterfaceOrientation:oldOrientation];
-}
-
--(void)manuallyRotateToOrientation:(UIInterfaceOrientation) newOrientation
-{
-	NSTimeInterval animation = ([self focusedViewController]==nil)?0.0:[[UIApplication sharedApplication] statusBarOrientationAnimationDuration];
-	[self manuallyRotateToOrientation:newOrientation duration:animation];
-}
-
--(void)manuallyRotate
-{
-	for (int i = 0; i<4; i++) {
-		if ([self shouldAutorotateToInterfaceOrientation:orientationHistory[i]]) {
-			[self manuallyRotateToOrientation:orientationHistory[i]];
-			return;
-		}
-	}
-}
-
-
 -(TiOrientationFlags)getDefaultOrientations
 {
 	// Read the orientation values from the plist - if they exist.
@@ -533,7 +534,7 @@
 		defaultFlags = TiOrientationNone;
 		for (NSString* orientationString in orientations)
 		{
-			UIInterfaceOrientation orientation = [TiUtils orientationValue:orientationString def:-1];
+			UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:orientationString def:-1];
 			if (orientation != -1) {
 				TI_ORIENTATION_SET(defaultFlags, orientation);
 			}
@@ -554,7 +555,7 @@
 
 	for (id mode in newOrientationModes)
 	{
-		UIInterfaceOrientation orientation = [TiUtils orientationValue:mode def:-1];
+		UIInterfaceOrientation orientation = (UIInterfaceOrientation)[TiUtils orientationValue:mode def:-1];
 		switch (orientation)
 		{
 			case UIDeviceOrientationPortrait:
@@ -723,12 +724,10 @@ What this does mean is that any
 
 #pragma mark Remote Control Notifications
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_4_0
 - (void)remoteControlReceivedWithEvent:(UIEvent *)event 
 { 
 	[[NSNotificationCenter defaultCenter] postNotificationName:kTiRemoteControlNotification object:self userInfo:[NSDictionary dictionaryWithObject:event forKey:@"event"]];
 }
-#endif
 
 #pragma mark TiOrientationFlags management.
 - (void)openWindow:(TiWindowProxy *)window withObject:(id)args
@@ -772,6 +771,7 @@ What this does mean is that any
 		[self childOrientationControllerChangedFlags:[windowProxies lastObject]];
 	}
 }
+
 
 -(void)childOrientationControllerChangedFlags:(id<TiOrientationController>) orientationController;
 {

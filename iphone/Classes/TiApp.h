@@ -129,11 +129,12 @@
  *	May be refactored into another class due to notifications posted for the
  *	necessary triggers.
  */
+-(void)beginBackgrounding;
+-(void)endBackgrounding;
 -(void)registerBackgroundService:(TiProxy*)proxy;
 -(void)unregisterBackgroundService:(TiProxy*)proxy;
 -(void)stopBackgroundService:(TiProxy*)proxy;
--(void)beginBackgrounding;
--(void)endBackgrounding;
+-(UILocalNotification*)localNotification;
 
 @end
 
