@@ -43,6 +43,7 @@
 	CGFloat							defaultImageHeight;
 
 	UIScrollView					*scrollView;
+	CGPoint							scrollContentOffset;
 	int								lowerVisibleCover;
 	int								upperVisibleCover;
 	int								numberOfImages;

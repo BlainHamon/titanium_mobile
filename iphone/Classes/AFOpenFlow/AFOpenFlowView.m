@@ -299,8 +299,8 @@ const static CGFloat kReflectionFraction = 0.85;
 	
 	CGPoint movedPoint = [[touches anyObject] locationInView:self];
 	CGFloat offset = startPosition - (movedPoint.x / 1.5);
-	CGPoint newPoint = CGPointMake(offset, 0);
-	scrollView.contentOffset = newPoint;
+	scrollContentOffset = CGPointMake(offset, 0);
+	scrollView.contentOffset = scrollContentOffset;
 	int newCover = offset / COVER_SPACING;
 	if (newCover != selectedCoverView.number) {
 		if (newCover < 0)
@@ -337,7 +337,11 @@ const static CGFloat kReflectionFraction = 0.85;
 
 - (void)centerOnSelectedCover:(BOOL)animated {
 	CGPoint selectedOffset = CGPointMake(COVER_SPACING * selectedCoverView.number, 0);
-	[scrollView setContentOffset:selectedOffset animated:animated];
+	if (!CGPointEqualToPoint(selectedOffset, scrollContentOffset))
+	{
+		scrollContentOffset = selectedOffset;
+		[scrollView setContentOffset:selectedOffset animated:animated];		
+	}
 }
 
 - (void)setSelectedCover:(int)newSelectedCover {
