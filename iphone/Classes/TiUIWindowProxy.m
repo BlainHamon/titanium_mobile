@@ -559,8 +559,10 @@
 		}
 	}
 
-	[ourNavItem setTitleView:newTitleView];
-    [self updateBarImage];
+    if (oldView != newTitleView) {
+        [ourNavItem setTitleView:newTitleView];
+        [self updateBarImage];
+    }
 }
 
 
