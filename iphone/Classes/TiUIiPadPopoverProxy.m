@@ -104,6 +104,12 @@ TiUIiPadPopoverProxy * currentlyDisplaying = nil;
 	if (popoverController == nil)
 	{
 		popoverController = [[UIPopoverController alloc] initWithContentViewController:[self navigationController]];
+		if ([popoverController respondsToSelector:@selector(setPopoverBackgroundViewClass:)]) {
+			Class customClass = NSClassFromString(@"TiPopoverBackgroundView");
+			if (customClass != nil) {
+				[(id)popoverController setPopoverBackgroundViewClass:customClass];
+			}
+		}
 		[popoverController setDelegate:self];
 		[self refreshTitleBarWithObject:nil];
 		[self updateContentSize];
