@@ -27,6 +27,8 @@ UIImage * borderArrowRight;
 UIImage * borderArrowDown;
 UIImage * borderBackground;
 UIEdgeInsets borderMargins;
+CGFloat arrowOverlap;
+
 CGFloat arrowHeight;
 CGFloat arrowBase;
 
@@ -47,11 +49,12 @@ CGFloat arrowBase;
 	borderArrowLeft = [[loader loadImmediateImage:[TiUtils toURL:@"/popoverLeftArrow.png" relativeToURL:rootUrl]] retain];
 	borderArrowRight = [[loader loadImmediateImage:[TiUtils toURL:@"/popoverRightArrow.png" relativeToURL:rootUrl]] retain];
 	borderArrowDown = [[loader loadImmediateImage:[TiUtils toURL:@"/popoverDownArrow.png" relativeToURL:rootUrl]] retain];
-
+	arrowOverlap = 10;
+	borderMargins = UIEdgeInsetsMake(20,20,20,20);
+	
 	CGSize arrowSize = [borderArrowUp size];
-	arrowHeight = arrowSize.height - 2;
+	arrowHeight = arrowSize.height - arrowOverlap;
 	arrowBase = arrowSize.width;
-	borderMargins = UIEdgeInsetsMake(10,10, 10, 10);
 	
 	borderBackground = [[loader loadImmediateStretchableImage:[TiUtils toURL:@"/popoverBackground.png" relativeToURL:rootUrl]] retain];
 }
