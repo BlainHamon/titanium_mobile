@@ -4,7 +4,7 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
  
  * Unless required by applicable law or agreed to in writing, software
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#ifdef USE_TI_FACEBOOK
+
 #import "FBDialog.h"
 
 @protocol FBLoginDialogDelegate;
@@ -27,21 +27,22 @@
  */
 
 @interface FBLoginDialog : FBDialog {
-  id<FBLoginDialogDelegate> _loginDelegate;
+    id<FBLoginDialogDelegate> _loginDelegate;
 }
 
--(id) initWithURL:(NSString *) loginURL 
-      loginParams:(NSMutableDictionary *) params 
-      delegate:(id <FBLoginDialogDelegate>) delegate;
+-(id) initWithURL:(NSString *) loginURL
+      loginParams:(NSMutableDictionary *) params
+         delegate:(id <FBLoginDialogDelegate>) delegate;
 @end
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-@protocol FBLoginDialogDelegate <NSObject> 
+@protocol FBLoginDialogDelegate <NSObject>
 
-- (void) fbDialogLogin:(NSString *) token expirationDate:(NSDate *) expirationDate;
+- (void)fbDialogLogin:(NSString*)token expirationDate:(NSDate*)expirationDate;
 
-- (void) fbDialogNotLogin:(BOOL) cancelled;
+- (void)fbDialogNotLogin:(BOOL)cancelled;
 
 @end
-#endif
+
+

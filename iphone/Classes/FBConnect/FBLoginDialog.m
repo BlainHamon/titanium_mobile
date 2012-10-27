@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef USE_TI_FACEBOOK
+
 #import "FBDialog.h"
 #import "FBLoginDialog.h"
 #import "Facebook.h"
@@ -112,4 +112,3 @@
 }
 
 @end
-#endif

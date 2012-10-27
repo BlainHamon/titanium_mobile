@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef USE_TI_FACEBOOK
+
 #import <Foundation/Foundation.h>
 
 @class Facebook;
@@ -24,7 +24,7 @@
  * Handles frictionless interaction and recipient-caching by the SDK,
  * see https://developers.facebook.com/docs/reference/dialogs/requests/ 
  */
-@interface FBFrictionlessRequestSettings : NSObject<FBRequestDelegate> {
+@interface FBFrictionlessRequestSettings : NSObject {
 @private
     NSArray*            _allowedRecipients;
     FBRequest*          _activeRequest;
@@ -72,4 +72,3 @@
 - (id)init;
 
 @end
-#endif

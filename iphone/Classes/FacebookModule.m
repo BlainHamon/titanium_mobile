@@ -140,10 +140,19 @@
 	[self handleRelaunch];
 }
 
+-(void)autoExtendToken:(NSNotification *)notification
+{
+	[facebook extendAccessTokenIfNeeded];
+}
+
 -(void)startup
 {
 	VerboseLog(@"[DEBUG] facebook startup");
-	
+	TiThreadPerformOnMainThread(^{
+		NSNotificationCenter * nc = [NSNotificationCenter defaultCenter];
+		[nc addObserver:self selector:@selector(autoExtendToken:) name:UIApplicationDidBecomeActiveNotification object:nil];
+		[nc addObserver:self selector:@selector(autoExtendToken:) name:UIApplicationSignificantTimeChangeNotification object:nil];
+	}, NO);
 	[super startup];
     forceDialogAuth = YES;
 	[self _restore];

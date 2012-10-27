@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifdef USE_TI_FACEBOOK
+
 #import "Facebook.h"
 #import "FBFrictionlessRequestSettings.h"
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 // private interface
 //
-@interface FBFrictionlessRequestSettings ()
+@interface FBFrictionlessRequestSettings () <FBRequestDelegate>
 
 @property (readwrite, retain) NSArray *     allowedRecipients;
 @property (readwrite, retain) FBRequest*    activeRequest;
@@ -46,7 +46,7 @@
 
 - (void)enableWithFacebook:(Facebook*)facebook {
     if (!_enabled) {
-        _enabled = true;
+        _enabled = YES;
         [self reloadRecipientCacheWithFacebook:facebook];
     }
 }
@@ -160,4 +160,3 @@
 @synthesize activeRequest = _activeRequest;
 
 @end
-#endif
