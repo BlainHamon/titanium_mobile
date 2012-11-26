@@ -260,6 +260,74 @@
 	[self forgetProxy:arg];
 }
 
+-(void)removeAllChildren:(id)arg
+{
+	ENSURE_UI_THREAD_1_ARG(arg);
+    
+    
+	if (children != nil) {
+		pthread_rwlock_wrlock(&childrenLock);
+
+		for (TiViewProxy* child in children)
+		{
+			if ([pendingAdds containsObject:child])
+			{
+				[pendingAdds removeObject:child];
+			}
+
+			[child setParent:nil];
+			[self forgetProxy:child];
+
+			if (view!=nil)
+			{
+				TiUIView *childView = [(TiViewProxy *)child view];
+				if ([NSThread isMainThread])
+				{
+					[childView removeFromSuperview];
+				}
+				else
+				{
+					TiThreadPerformOnMainThread(^{
+						[childView removeFromSuperview];
+					}, NO);
+				}
+			}
+		}
+
+		[self contentsWillChange];
+		if(parentVisible && !hidden)
+		{
+			[arg parentWillHide];
+		}
+
+		[children removeAllObjects];
+		RELEASE_TO_NIL(children);
+
+		pthread_rwlock_unlock(&childrenLock);
+
+		if (view!=nil)
+		{
+			BOOL layoutNeedsRearranging = !TiLayoutRuleIsAbsolute(layoutProperties.layoutStyle);
+			if ([NSThread isMainThread])
+			{
+				if (layoutNeedsRearranging)
+				{
+					[self layoutChildren:NO];
+				}
+			}
+			else
+			{
+				TiThreadPerformOnMainThread(^{
+					if (layoutNeedsRearranging)
+					{
+						[self layoutChildren:NO];
+					}
+				}, NO);
+			}
+		}
+	}
+}
+
 -(void)show:(id)arg
 {
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -1815,15 +1883,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(BOOL) widthIsAutoFill
 {
     BOOL isAutoFill = NO;
+    BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]);
+    
     if (TiDimensionIsAutoFill(layoutProperties.width))
     {
         isAutoFill = YES;
     }
-    else if (TiDimensionIsAuto(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]) )
+    else if (TiDimensionIsAuto(layoutProperties.width))
     {
-        isAutoFill = YES;
+        isAutoFill = followsFillBehavior;
     }
-    else if (TiDimensionIsUndefined(layoutProperties.width) && TiDimensionIsAutoFill([self defaultAutoWidthBehavior:nil]))
+    else if (TiDimensionIsUndefined(layoutProperties.width))
     {
         BOOL centerDefined = NO;
         int pinCount = 0;
@@ -1838,7 +1908,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             pinCount ++;
         }
         if ( (pinCount < 2) || (!centerDefined) ){
-            isAutoFill = YES;
+            isAutoFill = followsFillBehavior;
         }
     }
     return isAutoFill;
@@ -1847,15 +1917,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 -(BOOL) heightIsAutoFill
 {
     BOOL isAutoFill = NO;
+    BOOL followsFillBehavior = TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]);
+    
     if (TiDimensionIsAutoFill(layoutProperties.height))
     {
         isAutoFill = YES;
     }
-    else if (TiDimensionIsAuto(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]) )
+    else if (TiDimensionIsAuto(layoutProperties.height))
     {
-        isAutoFill = YES;
+        isAutoFill = followsFillBehavior;
     }
-    else if (TiDimensionIsUndefined(layoutProperties.height) && TiDimensionIsAutoFill([self defaultAutoHeightBehavior:nil]))
+    else if (TiDimensionIsUndefined(layoutProperties.height))
     {
         BOOL centerDefined = NO;
         int pinCount = 0;
@@ -1870,7 +1942,7 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
             pinCount ++;
         }
         if ( (pinCount < 2) || (!centerDefined) ) {
-            isAutoFill = YES;
+            isAutoFill = followsFillBehavior;
         }
     }
     return isAutoFill;
@@ -2117,8 +2189,17 @@ if(OSAtomicTestAndSetBarrier(flagBit, &dirtyflags))	\
 		}
 	}
 	pthread_rwlock_unlock(&childrenLock);
-
-	[ourView insertSubview:childView atIndex:result];
+    if (result == 0) {
+        [ourView insertSubview:childView atIndex:result];
+    }
+    else {
+        //Doing a blind insert at index messes up the underlying sublayer indices
+        //if there are layers which do not belong to subviews (backgroundGradient)
+        //So ensure the subview layer goes at the right index
+        //See TIMOB-11586 for fail case
+        UIView *sibling = [[ourView subviews] objectAtIndex:result-1];
+        [ourView insertSubview:childView aboveSubview:sibling];
+    }
 }
 
 

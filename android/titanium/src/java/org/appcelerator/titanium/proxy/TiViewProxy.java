@@ -272,7 +272,7 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				KrollDict d = null;
 				d = new KrollDict();
 				if (view != null) {
-					View v = view.getNativeView();
+					View v = view.getOuterView();
 					if (v != null) {
 						TiDimension nativeWidth = new TiDimension(v.getWidth(), TiDimension.TYPE_WIDTH);
 						TiDimension nativeHeight = new TiDimension(v.getHeight(), TiDimension.TYPE_HEIGHT);
@@ -591,6 +591,24 @@ public abstract class TiViewProxy extends KrollProxy implements Handler.Callback
 				if (child.parent != null && child.parent.get() == this) {
 					child.parent = null;
 				}
+			}
+		}
+	}
+
+	/**
+	 * Removes all children views.
+	 * @module.api
+	 */
+	@Kroll.method
+	public void removeAllChildren()
+	{
+		if (children != null) {
+			//children might be altered while we loop through it (threading)
+			//so we first copy children as it was when asked to remove all children
+			ArrayList<TiViewProxy> childViews = new ArrayList<TiViewProxy>();
+			childViews.addAll(children);
+			for (TiViewProxy child : childViews) {
+				remove(child);
 			}
 		}
 	}

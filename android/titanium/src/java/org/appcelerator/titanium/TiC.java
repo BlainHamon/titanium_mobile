@@ -282,7 +282,7 @@ public class TiC
 	/**
 	 * @module.api
 	 */
-	public static final String EVENT_PROPERTY_PLAYBACK_STATE = EVENT_PLAYBACK_STATE;
+	public static final String EVENT_PROPERTY_PLAYBACK_STATE = "playbackState";
 
 	/**
 	 * @module.api
@@ -448,6 +448,8 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String EVENT_UNFOCUSED = "unfocused";
+	public static final String INTENT_PROPERTY_ENTER_ANIMATION = "enterAnimation";
+	public static final String INTENT_PROPERTY_EXIT_ANIMATION = "exitAnimation";
 	public static final String INTENT_PROPERTY_FINISH_ROOT = "finishRoot";
 	public static final String INTENT_PROPERTY_IS_TAB = "isTab";
 	public static final String INTENT_PROPERTY_LAYOUT = "layout";
@@ -519,6 +521,16 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_ACTIVITY = "activity";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_ENTER_ANIMATION = "activityEnterAnimation";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_ACTIVITY_EXIT_ANIMATION = "activityExitAnimation";
 
 	/**
 	 * @module.api
@@ -926,6 +938,11 @@ public class TiC
 	 */
 	public static final String PROPERTY_DISPLAY_ADDRESS = "displayAddress";
 	
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_DOMAIN = "domain";
+
 	/**
 	 * @module.api
 	 */
@@ -1432,6 +1449,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_ON_HOME_ICON_ITEM_SELECTED = "onHomeIconItemSelected";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_ON_CREATE_OPTIONS_MENU = "onCreateOptionsMenu";
 
 	/**
@@ -1493,6 +1515,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_PARTNER = "partner";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_PASSWORD = "password";
 
 	/**
 	 * @module.api
@@ -1829,6 +1856,11 @@ public class TiC
 	/**
 	 * @module.api
 	 */
+	public static final String PROPERTY_TABS = "tabs";
+
+	/**
+	 * @module.api
+	 */
 	public static final String PROPERTY_TAB_OPEN = "tabOpen";
 	
 	/**
@@ -1959,6 +1991,11 @@ public class TiC
 	 * @module.api
 	 */
 	public static final String PROPERTY_URL = "url";
+
+	/**
+	 * @module.api
+	 */
+	public static final String PROPERTY_USERNAME = "username";
 
 	/**
 	 * @module.api
