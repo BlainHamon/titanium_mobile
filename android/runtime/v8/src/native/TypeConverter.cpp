@@ -15,6 +15,8 @@
 #include "ProxyFactory.h"
 #include "V8Runtime.h"
 
+#include "StringTable.h"
+
 #define TAG "TypeConverter"
 
 using namespace titanium;
@@ -130,6 +132,33 @@ v8::Handle<v8::Value> TypeConverter::javaStringToJsString(JNIEnv *env, jstring j
 		return v8::Null();
 	}
 
+	int nativeStringLength = env->GetStringLength(javaString);
+	const jchar *nativeString = env->GetStringCritical(javaString, NULL);
+	v8::Handle<v8::String> jsString = v8::String::New(nativeString, nativeStringLength);
+	env->ReleaseStringCritical(javaString, nativeString);
+
+	return jsString;
+}
+
+jstring TypeConverter::jsStringToJavaIndexedString(JNIEnv *env, v8::Handle<v8::String> jsString, int * indexOutput)
+{
+	if (indexOutput != NULL) {
+		int resultIndex = StringTable::jsStringToStringTableIndex(jsString);
+		*indexOutput = resultIndex;
+		if(resultIndex > 0) {
+			return NULL;
+		}
+	}
+	return TypeConverter::jsStringToJavaString(env, jsString);
+}
+
+v8::Handle<v8::String> TypeConverter::javaIndexedStringToJsString(JNIEnv *env, jstring javaString, int index)
+{
+	if (StringTable::stringTableIndexValid(index)) {
+		return StringTable::stringTableIndexToJsStringUnsafe(index);
+	}
+
+//We can't use javaStringToJsString because it uses v8::value when we promised a string.
 	int nativeStringLength = env->GetStringLength(javaString);
 	const jchar *nativeString = env->GetStringCritical(javaString, NULL);
 	v8::Handle<v8::String> jsString = v8::String::New(nativeString, nativeStringLength);

@@ -62,12 +62,12 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 
 JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
-	(JNIEnv *env, jobject jEmitter, jlong ptr, jobject jsource, jlong sourcePtr, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
+	(JNIEnv *env, jobject jEmitter, jlong ptr, jobject jsource, jlong sourcePtr, jint eventIndex, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
 {
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
 
-	Handle<Value> jsEvent = TypeConverter::javaStringToJsString(env, event);
+	Handle<Value> jsEvent = TypeConverter::javaIndexedStringToJsString(env, event, eventIndex);
 
 #ifdef TI_DEBUG
 	String::Utf8Value eventName(jsEvent);

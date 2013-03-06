@@ -48,6 +48,9 @@ public:
 	static jstring jsValueToJavaString(JNIEnv *env, v8::Handle<v8::Value> jsValue);
 	static v8::Handle<v8::Value> javaStringToJsString(JNIEnv *env, jstring javaString);
 
+	static jstring jsStringToJavaIndexedString(JNIEnv *env, v8::Handle<v8::String> jsString, int * indexOutput);
+	static v8::Handle<v8::String> javaIndexedStringToJsString(JNIEnv *env, jstring javaString, int index);
+
 	// date convert methods
 	static jobject jsDateToJavaDate(v8::Handle<v8::Date> jsDate);
 	static jlong jsDateToJavaLong(v8::Handle<v8::Date> jsDate);

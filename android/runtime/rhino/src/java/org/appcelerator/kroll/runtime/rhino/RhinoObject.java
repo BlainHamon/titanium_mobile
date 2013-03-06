@@ -76,7 +76,7 @@ public class RhinoObject extends KrollObject
 	 * builds before Rhino is removed.
 	 */
 	@Override
-	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
+	public boolean fireEvent(KrollObject source, int typeIndex, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
 	{
 		Context context = ((RhinoRuntime) KrollRuntime.getInstance()).enterContext();
 

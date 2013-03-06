@@ -50,7 +50,7 @@ public class V8Object extends KrollObject
 	}
 
 	@Override
-	public boolean fireEvent(KrollObject source, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
+	public boolean fireEvent(KrollObject source, int typeIndex, String type, Object data, boolean bubbles, boolean reportSuccess, int code, String message)
 	{
 		if (!KrollRuntime.isInitialized()) {
 			Log.w(TAG, "Runtime disposed, cannot fire event '" + type + "'");
@@ -61,7 +61,7 @@ public class V8Object extends KrollObject
 		if (source instanceof V8Object) {
 			sourceptr = ((V8Object) source).getPointer();
 		}
-		return nativeFireEvent(ptr, source, sourceptr, type, data,bubbles,reportSuccess,code,message);
+		return nativeFireEvent(ptr, source, sourceptr, typeIndex, type, data,bubbles,reportSuccess,code,message);
 	}
 
 	@Override
@@ -104,7 +104,7 @@ public class V8Object extends KrollObject
 	private static native boolean nativeRelease(long ptr);
 
 	private native void nativeSetProperty(long ptr, String name, Object value);
-	private native boolean nativeFireEvent(long ptr, Object source, long sourcePtr, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
+	private native boolean nativeFireEvent(long ptr, Object source, long sourcePtr, int eventIndex, String event, Object data, boolean bubble, boolean reportSuccess, int code, String errorMessage);
 	private native void nativeSetWindow(long ptr, Object windowProxyObject);
 }
 

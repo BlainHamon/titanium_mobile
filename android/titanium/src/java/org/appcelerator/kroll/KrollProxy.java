@@ -677,6 +677,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean doFireEvent(String event, Object data)
 	{
+		int eventIndex = TiConvert.indexFromString(event);
 		boolean bubbles = false;
 		boolean reportSuccess = false;
 		int code = 0;
@@ -752,7 +753,7 @@ public class KrollProxy implements Handler.Callback, KrollProxySupport
 			}
 		}
 		
-		return getKrollObject().fireEvent(source, event, krollData, bubbles, reportSuccess, code, message);
+		return getKrollObject().fireEvent(source, eventIndex, event, krollData, bubbles, reportSuccess, code, message);
 	}
 
 	public void firePropertyChanged(String name, Object oldValue, Object newValue)

@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.Arrays;
 
 import org.appcelerator.kroll.KrollDict;
 import org.appcelerator.kroll.KrollProxy;
@@ -847,6 +848,39 @@ public class TiConvert
 	{
 		return toDate(hashMap.get(key));
 	}
+	
+	
+	/**
+	 * Find the string from a lookup table for talking on JNI
+	 * @param index the index of the string to return.
+	 * @return a string if it exists in the table, null otherwise.
+	 * @module.api
+	 */
+	public static String stringFromIndex(int index)
+	{
+		if ((index > 0) && (index < TiC.STRING_LOOKUP.length)) {
+			return TiC.STRING_LOOKUP[index];
+		}
+		return null;
+	}
+
+	/**
+	 * Find the index of a string in a lookup table for talking on JNI
+	 * @param string the string to find in the table.
+	 * @return the index of the string if in the table, 0 otherwise.
+	 * @module.api
+	 */
+	public static int indexFromString(String inputString)
+	{
+		int index = Arrays.binarySearch(TiC.STRING_LOOKUP,inputString);
+		if ((index > 0) && (index < TiC.STRING_LOOKUP.length)) {
+			if (TiC.STRING_LOOKUP[index] == inputString) {
+				return index;
+			}
+		}
+		return 0;
+	}
+	
 }
 
 
