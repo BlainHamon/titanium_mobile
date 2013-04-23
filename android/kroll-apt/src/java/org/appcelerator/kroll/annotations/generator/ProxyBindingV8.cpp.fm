@@ -19,6 +19,12 @@
 #include "TypeConverter.h"
 #include "V8Util.h"
 
+#include <sys/time.h>
+#include <unistd.h>
+#include <time.h>
+#define timeDiff(start, end)	(1e3 * (end.tv_sec - start.tv_sec) + 1e-6 * (end.tv_nsec - start.tv_nsec))
+
+
 <#if isModule>
 
 <@Proxy.listChildModules ; isFirst, childModule>
@@ -216,6 +222,8 @@ Handle<FunctionTemplate> ${className}::getProxyTemplate()
 Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 {
 	LOGD(TAG, "${method.apiName}()");
+	timespec startTime, prepareTime, convertArgsTime, invocationTime, cleanupTime, convertResultTime, endTime;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &startTime);
 	HandleScope scope;
 
 	<@Proxy.initJNIEnv/>
@@ -226,13 +234,26 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 	<#if method.args?size &gt; 0>
 	<@Proxy.verifyAndConvertArguments method.args method />
 	<#else>
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &prepareTime);
 	jvalue* jArguments = 0;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &convertArgsTime);
 	</#if>
 
 	jobject javaProxy = proxy->getJavaObject();
 	<@Proxy.callJNIMethod method.args, method.hasInvocation, method.returnType,
 		"methodID", "javaProxy", "jArguments", (method.returnType != "void") ; hasResult, resultVar>
 
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &endTime);
+	double convertArgsMs = timeDiff(convertArgsTime,invocationTime);
+	double invocationMs = timeDiff(invocationTime,cleanupTime);
+	double convertResultsMs = timeDiff(convertResultTime,endTime);
+	double totalMs = timeDiff(startTime,endTime);
+	LOGI(TAG, "####### Name: ${className}::${method.apiName}() ,startup, %f ,preparation, %f "
+		",converting args, %f ,invocation, %f ,converting result, %f ,cleanup, %f "
+		",TOTAL TIME, %f ,invoking ratio, %f ,conversion ratio, %f\n",
+		timeDiff(startTime,prepareTime), timeDiff(prepareTime,convertArgsTime),
+		convertArgsMs, invocationMs, timeDiff(cleanupTime,convertResultTime), convertResultsMs,
+		totalMs, invocationMs/totalMs, (convertArgsMs+convertResultsMs)/totalMs);
 	<#if hasResult>
 	return ${resultVar};
 	<#else>
@@ -250,6 +271,8 @@ Handle<Value> ${className}::${method.apiName}(const Arguments& args)
 Handle<Value> ${className}::getter_${name}(Local<String> property, const AccessorInfo& info)
 {
 	LOGD(TAG, "get ${name}");
+	timespec startTime, prepareTime, convertArgsTime, invocationTime, cleanupTime, convertResultTime, endTime;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &startTime);
 	HandleScope scope;
 
 	<@Proxy.initJNIEnv/>
@@ -261,11 +284,25 @@ Handle<Value> ${className}::getter_${name}(Local<String> property, const Accesso
 		return Undefined();
 	}
 
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &prepareTime);
 	jvalue* jArguments = 0;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &convertArgsTime);
 
 	jobject javaProxy = proxy->getJavaObject();
 	<@Proxy.callJNIMethod property.getMethodArgs, property.getHasInvocation, property.getReturnType,
 		"methodID", "javaProxy", "jArguments", (property.getReturnType != "void") ; hasResult, resultVar>
+
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &endTime);
+	double convertArgsMs = timeDiff(convertArgsTime,invocationTime);
+	double invocationMs = timeDiff(invocationTime,cleanupTime);
+	double convertResultsMs = timeDiff(convertResultTime,endTime);
+	double totalMs = timeDiff(startTime,endTime);
+	LOGI(TAG, "####### Name: ${className}::getter_${name}() ,startup, %f ,preparation, %f "
+		",converting args, %f ,invocation, %f ,converting result, %f ,cleanup, %f "
+		",TOTAL TIME, %f ,invoking ratio, %f ,conversion ratio, %f\n",
+		timeDiff(startTime,prepareTime), timeDiff(prepareTime,convertArgsTime),
+		convertArgsMs, invocationMs, timeDiff(cleanupTime,convertResultTime), convertResultsMs,
+		totalMs, invocationMs/totalMs, (convertArgsMs+convertResultsMs)/totalMs);
 
 	return ${resultVar};
 
@@ -277,6 +314,8 @@ Handle<Value> ${className}::getter_${name}(Local<String> property, const Accesso
 void ${className}::setter_${name}(Local<String> property, Local<Value> value, const AccessorInfo& info)
 {
 	LOGD(TAG, "set ${name}");
+	timespec startTime, prepareTime, convertArgsTime, invocationTime, cleanupTime, convertResultTime, endTime;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &startTime);
 	HandleScope scope;
 
 	JNIEnv *env = titanium::JNIScope::getEnv();
@@ -292,8 +331,12 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 		return;
 	}
 
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &prepareTime);
+
 	jvalue jArguments[1];
 	<#assign typeInfo = Proxy.getTypeInfo(property.setMethodArgs[0].type)>
+
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &convertArgsTime);
 
 	<@Proxy.verifyAndConvertArgument expr="value" index=0 info=typeInfo logOnly=true isOptional=false/>
 
@@ -309,6 +352,18 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 	<#if property.get == false>
 	Proxy::setProperty(property, value, info);
 	</#if>
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &endTime);
+	double convertArgsMs = timeDiff(convertArgsTime,invocationTime);
+	double invocationMs = timeDiff(invocationTime,cleanupTime);
+	double convertResultsMs = timeDiff(convertResultTime,endTime);
+	double totalMs = timeDiff(startTime,endTime);
+	LOGI(TAG, "####### Name: ${className}::getter_${name}() ,startup, %f ,preparation, %f "
+		",converting args, %f ,invocation, %f ,converting result, %f ,cleanup, %f "
+		",TOTAL TIME, %f ,invoking ratio, %f ,conversion ratio, %f\n",
+		timeDiff(startTime,prepareTime), timeDiff(prepareTime,convertArgsTime),
+		convertArgsMs, invocationMs, timeDiff(cleanupTime,convertResultTime), convertResultsMs,
+		totalMs, invocationMs/totalMs, (convertArgsMs+convertResultsMs)/totalMs);
+
 }
 </#if>
 
@@ -318,6 +373,8 @@ void ${className}::setter_${name}(Local<String> property, Local<Value> value, co
 Handle<Value> ${className}::interceptor(Local<String> property, const AccessorInfo& info)
 {
 	HandleScope scope;
+	timespec startTime, prepareTime, convertArgsTime, invocationTime, cleanupTime, convertResultTime, endTime;
+	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &startTime);
 
 	<@Proxy.initJNIEnv/>
 	<@Proxy.initMethodID className=className name=interceptor.name signature="(Ljava/lang/String;)Ljava/lang/Object;" logOnly=false/>
