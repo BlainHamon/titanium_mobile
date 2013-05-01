@@ -11,6 +11,11 @@
 #include <stdint.h>
 #include "AndroidUtil.h"
 
+#include <sys/time.h>
+#include <unistd.h>
+#include <time.h>
+#include <string>
+
 #define JNIENV_GET_ERROR_MSG "Unable to get current JNI environment."
 #define LOG_JNIENV_GET_ERROR(tag) \
 	LOGE(tag, JNIENV_GET_ERROR_MSG)
@@ -157,6 +162,36 @@ private:
 	static JNIEnv* current;
 	JNIEnv* prev;
 };
+
+class timespecStopWatch
+{
+public:
+	timespecStopWatch(clockid_t newClock) : clock(newClock) {
+		watchSelector = 0;
+	}
+	void markTime();
+	std::string jsonValue();
+private:
+	timespec watchTimes[7];
+	int watchSelector;
+	clockid_t clock;
+};
+
+class watchCollection
+{
+public:
+	watchCollection(std::string watchname) : name(watchname), wallWatch(CLOCK_REALTIME),
+			processWatch(CLOCK_PROCESS_CPUTIME_ID), threadWatch(CLOCK_THREAD_CPUTIME_ID){
+	}
+	void markTime();
+	std::string jsonValue();
+private:
+	timespecStopWatch threadWatch;
+	timespecStopWatch processWatch;
+	timespecStopWatch wallWatch;
+	std::string name;
+};
+
 
 }
 

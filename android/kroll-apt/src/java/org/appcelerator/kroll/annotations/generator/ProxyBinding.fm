@@ -540,7 +540,7 @@ fails, a JS exception is returned.
 
 <#macro verifyAndConvertArguments args method>
 	<#-- Verify the correct argument count was provided. -->
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &prepareTime);
+	tracking.markTime();
 
 	<@Proxy.getRequiredArgumentCount args=args ; requiredCount>
 	<#if requiredCount &gt; 0>
@@ -571,7 +571,7 @@ fails, a JS exception is returned.
 	env->DeleteLocalRef(sourceUrl);
 	</#if>
 
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &convertArgsTime);
+	tracking.markTime();
 	<@Proxy.listMethodArguments args=args ; index, info, type, isOptional>
 
 	<#if type != "org.appcelerator.kroll.KrollInvocation">
@@ -620,14 +620,14 @@ stores the return value in "result". A nested section can
 beprovided to handle the result.
 ---------------------------------------------------------------->
 <#macro callJNIMethod methodArgs hasInvocation returnType methodID jobjectVar argsVar hasResult>
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &invocationTime);
+	tracking.markTime();
 	<#local info = getTypeInfo(returnType)
 			callExpr = "Call${info.javaCallMethodType}MethodA"
 			argExpr = "${jobjectVar}, ${methodID}, ${argsVar}"
 			resultExpr = "${info.javaReturnType} jResult = (${info.javaReturnType})">
 	<#if hasResult>
 	${resultExpr}env->${callExpr}(${argExpr});
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cleanupTime);
+	tracking.markTime();
 
 	<#local jsType = info.jsType>
 	<#if info?keys?seq_contains("jsConvertType")>
@@ -636,7 +636,7 @@ beprovided to handle the result.
 
 	<#else>
 	env->${callExpr}(${argExpr});
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &cleanupTime);
+	tracking.markTime();
 	</#if>
 
 	<#-- Delete java proxy reference once done making the call. -->
@@ -660,7 +660,7 @@ beprovided to handle the result.
 	}
 	</#if>
 
-	clock_gettime(CLOCK_THREAD_CPUTIME_ID, &convertResultTime);
+	tracking.markTime();
 	<#if hasResult>
 	Handle<${jsType}> v8Result = titanium::TypeConverter::${info.javaToJsConverter}(env, jResult);
 

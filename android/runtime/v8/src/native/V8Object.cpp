@@ -42,9 +42,13 @@ JNIEXPORT void JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	(JNIEnv *env, jobject object, jlong ptr, jstring name, jobject value)
 {
+	watchCollection tracking("Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty()");
+	tracking.markTime();
+
 	ENTER_V8(V8Runtime::globalContext);
 	titanium::JNIScope jniScope(env);
 
+	tracking.markTime();
 	Handle<Object> jsObject;
 	if (ptr != 0) {
 		jsObject = Persistent<Object>((Object *) ptr);
@@ -53,10 +57,17 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeSetProperty
 	}
 
 	Handle<Object> properties = jsObject->Get(Proxy::propertiesSymbol)->ToObject();
+	tracking.markTime();
 	Handle<Value> jsName = TypeConverter::javaStringToJsString(env, name);
 
 	Handle<Value> jsValue = TypeConverter::javaObjectToJsValue(env, value);
+	tracking.markTime();
 	properties->Set(jsName, jsValue);
+	tracking.markTime();
+
+	tracking.markTime();
+	tracking.markTime();
+	LOGI(TAG, "__TRACKING %s",tracking.jsonValue().c_str());
 }
 
 
@@ -64,8 +75,13 @@ JNIEXPORT jboolean JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	(JNIEnv *env, jobject jEmitter, jlong ptr, jobject jsource, jlong sourcePtr, jstring event, jobject data, jboolean bubble, jboolean reportSuccess, jint code, jstring errorMessage)
 {
+	watchCollection tracking("Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent()");
+	tracking.markTime();
+
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
+
+	tracking.markTime();
 
 	Handle<Value> jsEvent = TypeConverter::javaStringToJsString(env, event);
 
@@ -97,6 +113,8 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 
 	Handle<Function> fireEvent = Handle<Function>::Cast(fireEventValue->ToObject());
 
+	tracking.markTime();
+
 	Handle<Object> jsData = TypeConverter::javaHashMapToJsValue(env, data);
 
 	jsData->Set(String::NewSymbol("bubbles"), TypeConverter::javaBooleanToJsBoolean(bubble));
@@ -115,14 +133,27 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeFireEvent
 	Handle<Value> result;
 	TryCatch tryCatch;
 	Handle<Value> args[] = { jsEvent, jsData };
+
+	tracking.markTime();
+
 	result = fireEvent->Call(emitter, 2, args);
+
+	tracking.markTime();
 
 	if (tryCatch.HasCaught()) {
 		V8Util::openJSErrorDialog(tryCatch);
 		V8Util::reportException(tryCatch);
 	} else if (result->IsTrue()) {
+
+		tracking.markTime();
+		tracking.markTime();
+		LOGI(TAG, "__TRACKING %s",tracking.jsonValue().c_str());
 		return JNI_TRUE;
 	}
+
+	tracking.markTime();
+	tracking.markTime();
+	LOGI(TAG, "__TRACKING %s",tracking.jsonValue().c_str());
 	return JNI_FALSE;
 }
 
@@ -130,9 +161,13 @@ JNIEXPORT jobject JNICALL
 Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 	(JNIEnv* env, jclass clazz, jlong ptr, jstring propertyName, jobjectArray args)
 {
+	watchCollection tracking("Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty()");
+	tracking.markTime();
+
 	ENTER_V8(V8Runtime::globalContext);
 	JNIScope jniScope(env);
 
+	tracking.markTime();
 	Handle<Value> jsPropertyName = TypeConverter::javaStringToJsString(env, propertyName);
 	Persistent<Object> object = Persistent<Object>((Object*) ptr);
 	Local<Value> property = object->Get(jsPropertyName);
@@ -140,27 +175,36 @@ Java_org_appcelerator_kroll_runtime_v8_V8Object_nativeCallProperty
 		return JNIUtil::undefinedObject;
 	}
 
+	tracking.markTime();
 	int argc = 0;
 	Handle<Value>* argv = NULL;
 	if (args) {
 		argv = TypeConverter::javaObjectArrayToJsArguments(args, &argc);
 	}
 
+	tracking.markTime();
 	TryCatch tryCatch;
 	Local<Function> function = Local<Function>::Cast(property);
 	Local<Value> returnValue = function->Call(object, argc, argv);
+	tracking.markTime();
 
 	if (argv) {
 		delete[] argv;
 	}
+	tracking.markTime();
 
 	if (tryCatch.HasCaught()) {
 		V8Util::reportException(tryCatch);
+		tracking.markTime();
+		LOGI(TAG, "__TRACKING %s",tracking.jsonValue().c_str());
 		return JNIUtil::undefinedObject;
 	}
 
 	bool isNew;
-	return TypeConverter::jsValueToJavaObject(env, returnValue, &isNew);
+	jobject result = TypeConverter::jsValueToJavaObject(env, returnValue, &isNew);
+	tracking.markTime();
+	LOGI(TAG, "__TRACKING %s",tracking.jsonValue().c_str());
+	return result;
 }
 
 JNIEXPORT jboolean JNICALL

@@ -6,6 +6,7 @@
  */
 #include <jni.h>
 #include <stdio.h>
+#include <pthread.h>
 
 #include "JNIUtil.h"
 #include "AndroidUtil.h"
@@ -363,6 +364,43 @@ void JNIUtil::initCache()
 
 	jfieldID undefinedObjectField = env->GetStaticFieldID(krollRuntimeClass, "UNDEFINED", "Ljava/lang/Object;");
 	undefinedObject = env->NewGlobalRef(env->GetStaticObjectField(krollRuntimeClass, undefinedObjectField));
+}
+
+
+void timespecStopWatch::markTime()
+{
+	if (watchSelector < 7) {
+		clock_gettime(clock, &watchTimes[watchSelector]);
+	}
+	watchSelector++;
+}
+
+std::string timespecStopWatch::jsonValue()
+{
+	char buffer[1024];
+	snprintf(buffer,1024,"[{sec:%ld,nsec:%ld},{sec:%ld,nsec:%ld},{sec:%ld,nsec:%ld},"
+		"{sec:%ld,nsec:%ld},{sec:%ld,nsec:%ld},{sec:%ld,nsec:%ld},{sec:%ld,nsec:%ld}]",
+		watchTimes[0].tv_sec, watchTimes[0].tv_nsec, watchTimes[1].tv_sec, watchTimes[1].tv_nsec,
+		watchTimes[2].tv_sec, watchTimes[2].tv_nsec, watchTimes[3].tv_sec, watchTimes[3].tv_nsec,
+		watchTimes[4].tv_sec, watchTimes[4].tv_nsec, watchTimes[5].tv_sec, watchTimes[5].tv_nsec,
+		watchTimes[6].tv_sec, watchTimes[6].tv_nsec );
+	return std::string(buffer);
+}
+
+void watchCollection::markTime()
+{
+	threadWatch.markTime();
+	processWatch.markTime();
+	wallWatch.markTime();
+}
+
+std::string watchCollection::jsonValue()
+{
+	char buffer[4096];
+	snprintf(buffer,4096,"{name:\"%s\",threadTime:%s,processTime:%s,wallTime:%s,pid:%d,thread:%u}",
+		name.c_str(), threadWatch.jsonValue().c_str(), processWatch.jsonValue().c_str(),
+		wallWatch.jsonValue().c_str(), getpid(), (unsigned int)pthread_self());
+	return std::string(buffer);
 }
 
 } // namespace titanium
