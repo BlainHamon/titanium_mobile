@@ -6,6 +6,7 @@
  */
 #include <jni.h>
 #include <stdio.h>
+#include <unistd.h>
 #include <pthread.h>
 
 #include "JNIUtil.h"
@@ -399,7 +400,7 @@ std::string watchCollection::jsonValue()
 	char buffer[4096];
 	snprintf(buffer,4096,"{name:\"%s\",threadTime:%s,processTime:%s,wallTime:%s,pid:%d,thread:%u}",
 		name.c_str(), threadWatch.jsonValue().c_str(), processWatch.jsonValue().c_str(),
-		wallWatch.jsonValue().c_str(), getpid(), (unsigned int)pthread_self());
+		wallWatch.jsonValue().c_str(), getpid(), gettid());
 	return std::string(buffer);
 }
 
