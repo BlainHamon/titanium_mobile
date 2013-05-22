@@ -1,23 +1,24 @@
 /**
  * Appcelerator Titanium Mobile
- * Copyright (c) 2009-2012 by Appcelerator, Inc. All Rights Reserved.
+ * Copyright (c) 2009-2013 by Appcelerator, Inc. All Rights Reserved.
  * Licensed under the terms of the Apache Public License
  * Please see the LICENSE included with this distribution for details.
  */
 
+#ifndef Titanium_TiBindingRunLoop_h
+#define Titanium_TiBindingRunLoop_h
+
 #if TARGET_OS_IPHONE
-
-#import "KrollContext.h"
-
+@class KrollContext;
 typedef KrollContext * TiBindingRunLoop;
 
 #else
-
 typedef void * TiBindingRunLoop;
-
 #endif
 
 typedef void (*TiBindingCallback)(TiBindingRunLoop runLoop, void * payload);
+void TiBindingCallbackStartOperationAndRelease(TiBindingRunLoop runloop, void * payload);
+void TiBindingCallbackInvokeNSObjectAndRelease(TiBindingRunLoop runloop, void * payload);
 
 /*	TiBindingRunLoop's Enqueue will add a callback that will be run once
  *	during the run loop's idle. This is for things like events, callbacks,
@@ -38,3 +39,6 @@ void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callbac
  *		A window with an url property is being opened
  */
 void TiBindingRunLoopCallOnStart(TiBindingCallback callback, void * payload);
+
+typedef struct TiCallbackPayloadStruct *TiCallbackPayloadNode;
+#endif

@@ -8,6 +8,7 @@
 #import "TiCore.h"
 #import "TiBase.h"
 #import "TiContextRefPrivate.h"
+#import "TiBindingRunLoop.h"
 
 @class KrollContext;
 @class KrollCallback;
@@ -32,9 +33,8 @@
 @private
 	id<KrollDelegate> delegate;
 	NSString *contextId;
-	NSRecursiveLock *lock;
 	NSCondition *condition;
-	NSMutableArray *queue;
+	TiCallbackPayloadNode eventQueue;
 	BOOL stopped;
 
 //Garbage collection variables.

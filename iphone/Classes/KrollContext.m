@@ -19,6 +19,9 @@
 
 #import "TiUIAlertDialogProxy.h"
 
+#import "TiBindingRunLoop.h"
+#import "TiBindingRunLoopInternal.h"
+
 #ifdef KROLL_COVERAGE
 # import "KrollCoverage.h"
 #endif
@@ -754,11 +757,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #endif
 		contextId = [[NSString stringWithFormat:@"kroll$%d",++KrollContextIdCounter] copy];
 		condition = [[NSCondition alloc] init];
-		queue = [[NSMutableArray alloc] init];
 		timerLock = [[NSRecursiveLock alloc] init];
 		[timerLock setName:[NSString stringWithFormat:@"%@ Timer Lock",[self threadName]]];
-		lock = [[NSRecursiveLock alloc] init];
-		[lock setName:[NSString stringWithFormat:@"%@ Lock",[self threadName]]];
 		stopped = YES;
 		KrollContextCount++;
         debugger = NULL;
@@ -777,11 +777,10 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #endif
 	[self stop];
 	RELEASE_TO_NIL(condition);
-	if (queue!=nil)
-	{
-		[queue removeAllObjects];
-	}		
-	RELEASE_TO_NIL(queue);
+	TiCallbackPayloadNode remainingNode;
+	while ((remainingNode = TiCallbackPayloadConsumeTail(&eventQueue)) != NULL) {
+		free(remainingNode);
+	}
 	RELEASE_TO_NIL(contextId);
 	if (timerLock!=nil)
 	{
@@ -793,7 +792,6 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		[timerLock unlock];
 	}
 	RELEASE_TO_NIL(timers);
-	RELEASE_TO_NIL(lock);
 	RELEASE_TO_NIL(timerLock);
 }
 
@@ -928,7 +926,12 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #ifdef DEBUG
 -(int)queueCount
 {
-	return [queue count];
+	int result = 0;
+	TiCallbackPayloadNode thisNode;
+	for (thisNode = eventQueue; thisNode != NULL; thisNode = thisNode->next) {
+		result ++;
+	}
+	return result;
 }
 #endif
 
@@ -945,38 +948,28 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invoke:(id)object
 {
+	DebugLog(@"[WARN] -[KrollContext invoke:] is DEPRECATED.");
 	pthread_mutex_lock(&KrollEntryLock);
 	if([object isKindOfClass:[NSOperation class]])
 	{
 		[(NSOperation *)object start];
-		pthread_mutex_unlock(&KrollEntryLock);
-		return;
+	} else {
+		[object invoke:self];
 	}
-
-	[object invoke:self];
 	pthread_mutex_unlock(&KrollEntryLock);
 }
 
+
 -(void)enqueue:(id)obj
 {
-	[condition lock];
+	//TODO: Depricate.
+	if([obj isKindOfClass:[NSOperation class]])
+	{
+		TiBindingRunLoopEnqueue(self,TiBindingCallbackStartOperationAndRelease,[obj retain]);
+		return;
+	}
 
-	BOOL mythread = [self isKJSThread];
-	
-	if (!mythread) 
-	{
-		[lock lock];
-	}
-	
-	[queue addObject:obj];
-	
-	if (!mythread)
-	{
-		[lock unlock];
-		[condition signal];
-	}
-	
-	[condition unlock];
+	TiBindingRunLoopEnqueue(self,TiBindingCallbackInvokeNSObjectAndRelease,[obj retain]);
 }
 
 -(void)evalJS:(NSString*)code
@@ -1222,7 +1215,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
 			//TODO: Suspended currently only is set on app pause/resume. We should have it happen whenever a JS thread
 			//should be paused. Paused being no timers waiting, no events being triggered, no code to execute.
-			if (suspended && ([queue count] == 0))
+			if (suspended && (eventQueue == NULL))
 			{
 				VerboseLog(@"Waiting: %@",self);
                 decrementKrollCounter();
@@ -1243,18 +1236,9 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 		{
             [condition unlock];
 			exit_after_flush = YES;
-			int queue_count = 0;
-			
-			[lock lock];
-			queue_count = [queue count];
-			[lock unlock];
-
-#if CONTEXT_DEBUG == 1	
-			NSLog(@"[DEBUG] CONTEXT<%@>: shutdown, queue_count = %d",self,queue_count);
-#endif
 			
 			// we're stopped, nothing in the queue, time to bail
-			if (queue_count==0)
+			if (eventQueue == NULL)
 			{
 				RELEASE_TO_NIL(innerpool);
 				break;
@@ -1288,32 +1272,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 			// can't deadlock on recursive callbacks
              // removeObjectAtIndex sends an 'autorelease' message, so we need to drain the pool in the queue loop, NOT the invoke
             NSAutoreleasePool* pool_ = [[NSAutoreleasePool alloc] init];
-			id entry = nil;
-			[lock lock];
-#if CONTEXT_DEBUG == 1	
-			int queueSize = [queue count];
-#endif
-			if ([queue count] == 0)
-			{
-				stuff_in_queue = NO;
-			}
-			else 
-			{
-				entry = [[queue objectAtIndex:0] retain];
-				[queue removeObjectAtIndex:0]; 
-			}
-			[lock unlock];
-			if (entry!=nil)
+			TiCallbackPayloadNode entry = TiCallbackPayloadConsumeTail(&eventQueue);
+			stuff_in_queue = entry!=NULL;
+			if (stuff_in_queue)
 			{
 				@try 
 				{
-#if CONTEXT_DEBUG == 1	
-					NSLog(@"[DEBUG] CONTEXT<%@>: before action event invoke: %@, queue size: %d",self,entry,queueSize-1);
-#endif
-					[self invoke:entry];
-#if CONTEXT_DEBUG == 1	
-					NSLog(@"[DEBUG] CONTEXT<%@>: after action event invoke: %@",self,entry);
-#endif
+					pthread_mutex_lock(&KrollEntryLock);
+					(entry->callback)(self,entry->payload);
 				}
 				@catch (NSException * e) 
 				{
@@ -1323,8 +1289,8 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 				}
 				@finally 
 				{
-					[entry release];
-					entry = nil;
+					pthread_mutex_unlock(&KrollEntryLock);
+					free(entry);
 				}				
 			}
             [pool_ release];
@@ -1350,10 +1316,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 #endif
 		
 		[condition lock];
-		[lock lock];
-		int queue_count = [queue count];
-		[lock unlock];
-		if ((queue_count == 0) && !suspended)
+		if ((eventQueue == NULL) && !suspended)
 		{
 			// wait only 10 seconds and then loop, this will allow us to garbage
 			// collect every so often

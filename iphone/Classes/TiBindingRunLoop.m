@@ -6,70 +6,56 @@
  */
 
 #import "TiBindingRunLoop.h"
-#import <libkern/OSAtomic.h>
+#import "TiBindingRunLoopInternal.h"
+#import "KrollContext.h"
 
-typedef struct TiCallbackPayloadStruct *TiCallbackPayloadNode;
-
-struct TiCallbackPayloadStruct{
-	TiBindingCallback callback;
-	void * payload;
-	TiCallbackPayloadNode next;
-};
-
-TiCallbackPayloadNode TiCallbackPayloadCreate(TiBindingCallback callback, void * payload)
+void TiBindingCallbackStartOperationAndRelease(TiBindingRunLoop runloop, void * payload)
 {
-	TiCallbackPayloadNode newPair = malloc(sizeof(struct TiCallbackPayloadStruct));
-	newPair->callback = callback;
-	newPair->payload = payload;
-	newPair->next = NULL;
-	return newPair;
+	[(NSOperation *)payload start];
+	[(id)payload release];
+}
+
+void TiBindingCallbackInvokeNSObjectAndRelease(TiBindingRunLoop runloop, void * payload)
+{
+	[(id)payload invoke:runloop];
+	[(id)payload release];
 }
 
 
 
-@interface TiBindingCallbackInvoke : NSObject
--(id)initWithCallback:(TiBindingCallback)ourCallback payload:(void*)ourPayload;
--(void)invoke:(TiBindingRunLoop)runLoop;
+@interface KrollContext(TiBindingRunLoop)
+-(TiCallbackPayloadNode *) callbackQueue;
+@property (readonly) NSCondition *condition;
 @end
 
-@implementation TiBindingCallbackInvoke
+@implementation KrollContext(TiBindingRunLoop)
+-(TiCallbackPayloadNode *) callbackQueue
 {
-	TiBindingCallback callback;
-	void * payload;
-}
--(id)initWithCallback:(TiBindingCallback)ourCallback payload:(void*)ourPayload
-{
-	if((self=[super init])){
-		callback = ourCallback;
-		payload = ourPayload;
-	}
-	return self;
+	return &eventQueue;
 }
 
--(void)invoke:(TiBindingRunLoop)runLoop
+-(NSCondition *)condition
 {
-	callback(runLoop,payload);
+	return condition;
 }
-
 @end
 
 void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callback, void * payload)
 {
-	TiBindingCallbackInvoke * runCallback = [[TiBindingCallbackInvoke alloc] initWithCallback:callback payload:payload];
-	[runLoop enqueue:runCallback];
-	[runCallback release];
-}
-
-
-
-
-
-void TiCallbackPayloadAppendList(TiCallbackPayloadNode * queue, TiCallbackPayloadNode newPair)
-{
-	while (!OSAtomicCompareAndSwapPtrBarrier(NULL,newPair,(volatile void*)queue))
-	{
-		queue = &((*queue)->next);
+	TiCallbackPayloadNode newNode = TiCallbackPayloadCreate(callback, payload);
+	if ([runLoop isKJSThread]) {
+		//If we're on our thread, by definition we're not waiting.
+		TiCallbackPayloadProduceHead([runLoop callbackQueue], newNode);
+		return;
 	}
+
+	NSCondition * condition = [runLoop condition];
+	
+	[condition lock];
+	TiCallbackPayloadProduceHead([runLoop callbackQueue], newNode);
+	[condition signal];
+	[condition unlock];
+
 }
 
 
