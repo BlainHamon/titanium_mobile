@@ -157,7 +157,7 @@ void CMExternalChangeCallback (ABAddressBookRef notifyAddressBook,CFDictionaryRe
 			NSDictionary * propertiesDict = [TiUtils dictionaryWithCode:[errorObj code] message:[TiUtils messageFromError:errorObj]];
 			
 			KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-			[[callback context] enqueue:invocationEvent];
+			TiBindingRunLoopEnqueue([callback context],TiBindingCallbackInvokeNSObjectAndRelease,invocationEvent);
 		});
 	}, NO);
 #endif

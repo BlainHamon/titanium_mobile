@@ -240,9 +240,7 @@ typedef void(^EKEventStoreRequestAccessCompletionHandler)(BOOL granted, NSError 
                                      NSDictionary *propertiesDict = [TiUtils dictionaryWithCode:[error code]
                                                                                         message:[TiUtils messageFromError:error]];
                                      KrollEvent * invocationEvent = [[KrollEvent alloc] initWithCallback:callback eventObject:propertiesDict thisObject:self];
-                                     [[callback context] enqueue:invocationEvent];
-                                     
-                                     
+									 TiBindingRunLoopEnqueue([callback context],TiBindingCallbackInvokeNSObjectAndRelease,invocationEvent);
                                  }];
 	}, NO);
 }

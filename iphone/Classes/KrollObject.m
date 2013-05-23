@@ -951,9 +951,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 	if (![context isKJSThread])
 	{
-		NSOperation * safeProtect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(protectJsobject) object:nil];
-		[context enqueue:safeProtect];
-		[safeProtect release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, nil, nil, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 	protecting = YES;
@@ -974,9 +973,8 @@ bool KrollHasInstance(TiContextRef ctx, TiObjectRef constructor, TiValueRef poss
 
 	if (![context isKJSThread])
 	{
-		NSOperation * safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self selector:@selector(unprotectJsobject) object:nil];
-		[context enqueue:safeUnprotect];
-		[safeUnprotect release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, nil, nil, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 	protecting = NO;
@@ -1022,10 +1020,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
     
 	if (![context isKJSThread])
 	{
-		NSOperation * safeProtect = [[NSInvocationOperation alloc] initWithTarget:self
-				selector:@selector(noteKeylessKrollObject:) object:value];
-		[context enqueue:safeProtect];
-		[safeProtect release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, value, nil, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 	
@@ -1038,10 +1034,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 {
 	if (![context isKJSThread])
 	{
-		NSOperation * safeUnprotect = [[NSInvocationOperation alloc] initWithTarget:self
-				selector:@selector(forgetKeylessKrollObject:) object:value];
-		[context enqueue:safeUnprotect];
-		[safeUnprotect release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, value, nil, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 
@@ -1055,10 +1049,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	if (![context isKJSThread])
 	{
 		DeveloperLog(@"[WARN] %@ tried to protect callback for %@ in the wrong thead.",target,key);
-		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
-				initWithTarget:self selector:_cmd object:eventCallback object:key];
-		[context enqueue:safeInvoke];
-		[safeInvoke release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, eventCallback, key, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 
@@ -1072,10 +1064,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 {
 	if (![context isKJSThread])
 	{
-		NSOperation * safeForget = [[NSInvocationOperation alloc] initWithTarget:self
-				selector:@selector(forgetCallbackForKey:) object:key];
-		[context enqueue:safeForget];
-		[safeForget release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, key, nil, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);
@@ -1092,10 +1082,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 
 	if (![context isKJSThread])
 	{
-		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
-				initWithTarget:self selector:_cmd object:key object:eventData object:thisObject];
-		[context enqueue:safeInvoke];
-		[safeInvoke release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, key, eventData, thisObject, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 	
@@ -1142,10 +1130,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 	if (![context isKJSThread])
 	{
 		DeveloperLog(@"[WARN] %@ tried to note the callback for %@ in the wrong thead.",target,key);
-		NSOperation * safeInvoke = [[ExpandedInvocationOperation alloc]
-				initWithTarget:self selector:_cmd object:value object:key];
-		[context enqueue:safeInvoke];
-		[safeInvoke release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, value, key, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 
@@ -1158,10 +1144,8 @@ TI_INLINE TiStringRef TiStringCreateWithPointerValue(int value)
 {
 	if (![context isKJSThread])
 	{
-		NSOperation * safeForget = [[NSInvocationOperation alloc] initWithTarget:self
-				selector:_cmd object:key];
-		[context enqueue:safeForget];
-		[safeForget release];
+		TiBindingCallbackSelector safeInvoke = TiBindingCallbackSelectorCreate(self, _cmd, key, nil, nil, nil);
+		TiBindingRunLoopEnqueue(context, TiBindingCallbackCallSelector,safeInvoke);
 		return;
 	}
 	TiStringRef nameRef = TiStringCreateWithCFString((CFStringRef)key);

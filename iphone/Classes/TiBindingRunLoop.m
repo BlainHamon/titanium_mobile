@@ -21,6 +21,55 @@ void TiBindingCallbackInvokeNSObjectAndRelease(TiBindingRunLoop runloop, void * 
 	[(id)payload release];
 }
 
+void TiBindingCallbackCallBlockAndRelease(TiBindingRunLoop runloop, void * payload)
+{
+	((void (^)(void))payload)();
+	[(void (^)(void))payload release];
+}
+
+struct TiBindingCallbackSelectorStruct
+{
+	id object;
+	SEL selector;
+	id arg1;
+	id arg2;
+	id arg3;
+	id arg4;
+};
+
+TiBindingCallbackSelector TiBindingCallbackSelectorCreate(id object, SEL selector, id arg1, id arg2, id arg3, id arg4)
+{
+	TiBindingCallbackSelector result = malloc(sizeof(struct TiBindingCallbackSelectorStruct));
+	result->object = [object retain];
+	result->selector = selector;
+	result->arg1 = [arg1 retain];
+	result->arg2 = [arg2 retain];
+	result->arg3 = [arg3 retain];
+	result->arg4 = [arg4 retain];
+	
+	return result;
+}
+
+void TiBindingCallbackCallSelector(TiBindingRunLoop runloop, void * payload)
+{
+	TiBindingCallbackSelector payloadSelector = (TiBindingCallbackSelector)payload;
+	
+	IMP ourFunction = [payloadSelector->object methodForSelector:payloadSelector->selector];
+	ourFunction(payloadSelector->object,
+				payloadSelector->selector,
+				payloadSelector->arg1,
+				payloadSelector->arg2,
+				payloadSelector->arg3,
+				payloadSelector->arg4);
+	
+	[payloadSelector->object release];
+	[payloadSelector->arg1 release];
+	[payloadSelector->arg2 release];
+	[payloadSelector->arg3 release];
+	[payloadSelector->arg4 release];
+	
+	free(payloadSelector);
+}
 
 
 @interface KrollContext(TiBindingRunLoop)
@@ -58,6 +107,10 @@ void TiBindingRunLoopEnqueue(TiBindingRunLoop runLoop, TiBindingCallback callbac
 
 }
 
+void TiBindingRunLoopEnqueueBlock(TiBindingRunLoop runLoop, void (^payload)(void))
+{
+	TiBindingRunLoopEnqueue(runLoop, TiBindingCallbackCallBlockAndRelease, [payload copy]);
+}
 
 TiCallbackPayloadNode RunLoopCallOnStartQueue = NULL;
 

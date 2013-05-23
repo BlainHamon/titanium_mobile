@@ -79,8 +79,7 @@ static NSLock *callbackLock;
 		{
 			KrollUnprotectOperation * delayedUnprotect = [[KrollUnprotectOperation alloc]
 					initWithContext:jsContext withJsobject:function andJsobject:thisObj];
-			[context enqueue:delayedUnprotect];
-			[delayedUnprotect release];
+			TiBindingRunLoopEnqueue(context, TiBindingCallbackStartOperationAndRelease, delayedUnprotect);
 		}
 	}
 	function = NULL;

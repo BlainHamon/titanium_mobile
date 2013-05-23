@@ -962,7 +962,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)enqueue:(id)obj
 {
-	//TODO: Depricate.
+	DebugLog(@"[WARN] -[KrollContext enqueue:] is DEPRECATED.");
 	if([obj isKindOfClass:[NSOperation class]])
 	{
 		TiBindingRunLoopEnqueue(self,TiBindingCallbackStartOperationAndRelease,[obj retain]);
@@ -974,13 +974,14 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)evalJS:(NSString*)code
 {
-	KrollEval *eval = [[[KrollEval alloc] initWithCode:code] autorelease];
+	KrollEval *eval = [[KrollEval alloc] initWithCode:code];
 	if ([self isKJSThread])
 	{	
 		[eval invoke:self];
+		[eval release];
 		return;
 	}
-	[self enqueue:eval];
+	TiBindingRunLoopEnqueue(self,TiBindingCallbackInvokeNSObjectAndRelease,eval);
 }
 
 -(id)evalJSAndWait:(NSString*)code
@@ -996,36 +997,33 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj condition:(NSCondition*)condition_
 {
-	KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj condition:condition_] autorelease];
+	KrollInvocation *invocation = [[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj condition:condition_];
 	if ([self isKJSThread])
 	{
-		[invocation invoke:self];
+		TiBindingCallbackInvokeNSObjectAndRelease(self, invocation);
 		return;
 	}
-	[self enqueue:invocation];
+	TiBindingRunLoopEnqueue(self, TiBindingCallbackInvokeNSObjectAndRelease, invocation);
 }
 
 -(void)invokeOnThread:(id)callback_ method:(SEL)method_ withObject:(id)obj callback:(id)callback selector:(SEL)selector_
 {
-	KrollInvocation *invocation = [[[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj callback:callback selector:selector_] autorelease];
+	KrollInvocation *invocation = [[KrollInvocation alloc] initWithTarget:callback_ method:method_ withObject:obj callback:callback selector:selector_];
 	if ([self isKJSThread])
 	{
-		[invocation invoke:self];
+		TiBindingCallbackInvokeNSObjectAndRelease(self, invocation);
 		return;
 	}
-	[self enqueue:invocation];
+	TiBindingRunLoopEnqueue(self, TiBindingCallbackInvokeNSObjectAndRelease, invocation);
 }
 
 -(void)invokeBlockOnThread:(void (^)())block
 {
     if ([self isKJSThread]) {
-        pthread_mutex_lock(&KrollEntryLock);
-        block();
-        pthread_mutex_unlock(&KrollEntryLock);
+		[KrollContext invokeBlock:block];
         return;
     }
-    NSBlockOperation* blockOp = [NSBlockOperation blockOperationWithBlock:block];
-    [self enqueue:blockOp];
+	TiBindingRunLoopEnqueue(self, TiBindingCallbackCallBlockAndRelease, [block copy]);
 }
 
 + (void)invokeBlock:(void (^)())block
@@ -1407,6 +1405,7 @@ static TiValueRef StringFormatDecimalCallback (TiContextRef jsContext, TiObjectR
 	self = [super init];
 	if (self != nil)
 	{
+		NSLog(@"[WARN] ExpandedInvocationOperation is depricated");
 		[self setInvocationTarget:target];
 		[self setInvocationSelector:sel];
 		[self setInvocationArg1:arg1];

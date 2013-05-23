@@ -486,8 +486,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
 	}
 
 	KrollEvent *event = [[KrollEvent alloc] initWithCallback:listener eventObject:obj thisObject:thisObject_];
-	[context enqueue:event];
-	[event release];
+	TiBindingRunLoopEnqueue(context,TiBindingCallbackInvokeNSObjectAndRelease,event);
 }
 
 -(void)enqueueEvent:(NSString*)type forProxy:(TiProxy *)proxy withObject:(id)obj
@@ -499,9 +498,7 @@ CFMutableSetRef	krollBridgeRegistry = nil;
                              ForKrollObject:eventKrollObject
                              eventObject:obj 
                              thisObject:eventKrollObject];
-    
-	[context enqueue:newEvent];
-	[newEvent release];
+	TiBindingRunLoopEnqueue(context,TiBindingCallbackInvokeNSObjectAndRelease,newEvent);
 }
 
 -(void)shutdown:(NSCondition*)condition

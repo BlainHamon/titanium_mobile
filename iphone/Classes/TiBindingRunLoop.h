@@ -17,8 +17,30 @@ typedef void * TiBindingRunLoop;
 #endif
 
 typedef void (*TiBindingCallback)(TiBindingRunLoop runLoop, void * payload);
+
+/*	Convenience TiBindingCallbacks provided as they can be often used. The methods
+ *	provided do clear up the payload (IE, free or release them as needed)
+ */
+
+#if TARGET_OS_IPHONE
+//Payload should be a NSOperation object. It will release after running start.
 void TiBindingCallbackStartOperationAndRelease(TiBindingRunLoop runloop, void * payload);
+
+//Paylod should be an NSObject that implements an 'invoke:' method, taking the runloop
+//as the argument. After invoking, the object will be released.
 void TiBindingCallbackInvokeNSObjectAndRelease(TiBindingRunLoop runloop, void * payload);
+
+//Payload should be a block that takes no arguments and returns no value. It will be
+//released at the end of the call.
+void TiBindingCallbackCallBlockAndRelease(TiBindingRunLoop runloop, void * payload);
+
+typedef struct TiBindingCallbackSelectorStruct *TiBindingCallbackSelector;
+TiBindingCallbackSelector TiBindingCallbackSelectorCreate(id object, SEL selector, id arg1, id arg2, id arg3, id arg4);
+void TiBindingCallbackCallSelector(TiBindingRunLoop runloop, void * payload);
+
+#endif
+
+
 
 /*	TiBindingRunLoop's Enqueue will add a callback that will be run once
  *	during the run loop's idle. This is for things like events, callbacks,
